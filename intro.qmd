@@ -1,0 +1,174 @@
+
+```{=html}
+<style>
+body{text-align: justify}
+</style>
+```
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+# Introdução
+
+A Técnica de **Regressão Linear** é uma das mais conhecida e utilizadas na Estatística. È a porta de entrada para diversos modelos preditivos mais sofisticados, já que muitos destes usam conceitos também utilizados na regressão linear. Essencialmente, a regressão linear pode ser utilizada para prever o valor de uma variável quantitativa (**dependente**) em função das outras variáveis (**independentes ou preditoras**).
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+
+# Regressão Linear Simples
+
+Para ilustrar a regressão simples, vamos começar com um exemplo em que queremos estudar a relação entre idade (**variável preditora $X_{1}$**) e Salário (**variável dependente Y**) com uma amostra de 80 funcionários do Supermercadp Formosa.
+
+Vamos assumir que o salário varia linearmente conforme a idade. Matematicamente, diremos que o salário é uma função linear da idade: salário = $Salário \ = \ \beta_{0}+\beta_{1}*Idade$. Entretanto, sabemos que esta relação não é determinística, isto é, não necessariamente a diferença salarial entre uma pessoa com 30 anos e outra com 31 será $\beta_{1}$. Isso ocorre porque há outros fatores que interferem no salário e não estão incluídos no modelo. Este ruído será representado por um termo de erro do modelo:
+
+$$ Salário = \beta_{0} + \beta_{1} * Idade + erro$$
+
+NO modelo de regressão simples tradicional, o termo de erro tem valor esperado igual a7 zero, e isso implica no salário médio das pessoas com determinada idade, denotado por E(Salário), dado pela parte determinística da equação:
+
+
+$$ E(Salário) = \beta_{0} + \beta_{1} * Idade$$ 
+
+
+$\beta_{0} + \beta_{1}$ são parâmetros do modelo e podem ser estimados a partir dos dados da amostra. NO exemplo , usaremos os dados amostrais para estimar esses parâmetros. o Primeiro passo e construir um gráfico de dispersão em que colocamos a idade no eixo x e o salário no eixo y. 
+
+
+Primeiro Passo é definir o diretório de trabalho no R
+
+
+```{r}
+setwd('C:/Users/mario Dhiego/Documents/Modelo_Regresao1/Modelo_Regresao1')
+```
+
+Segundo Passo é carregar a base de dados, chamada de mercado. Para isso é necessário instalar o pacote para leitura de arquivo com extensão do tipo excel(.xlsx) por meio do comando **install.packages("readxl")**.
+
+Posteriormente, ativar o pacote no R com o comando **library(readxl)**. Tendo um detalhe fundamental, que se instala somente um vez o pacote, e se ativa toda vez que for usar.
+
+
+```{r base1}
+library(readxl)
+
+mercado <- read_excel('mercado.xlsx')
+
+```
+
+
+O script utilizado para gerar o gráfico de dispersão no R é mostrado a seguir:
+
+
+```{r Dispersao1}
+library(ggplot2)
+library(plotly)
+
+Plot2 <- ggplot(mercado, aes(x=IDADE, y= SALARIO))+
+  geom_point(size = 3.5, 
+             pch = 21, 
+             col = 'black',
+             fill = 'red')+
+  geom_smooth(method="lm", 
+              se= TRUE)+
+  theme_bw()+
+  labs(x="IDADE", 
+       y="SALÁRIO", 
+       title="Diagrama de Dispersão", 
+       subtitle = "Renda Salarial")
+ggplotly(Plot2)
+```
+
+O gráfico mostra originalmente um ponto muito distante dos demais, no qual é o salário de um dos diretores da Empresa que ganha **R$ 12.460,00**
+
+
+
+O gráfico mostra que há uma tendência de crescimento do salário quando a idade aumenta, ilustrado pela reta inclinada, que chamaremos de reta de mínimos quadrados.
+
+
+## Reta de Mínimos Quadrados
+
+A seguir, vamos ver como encontrar a reta que estabelece uma relação entre as duas variáveis:
+
+$$ \hat{y} = \hat{\beta_{0}} + \hat{\beta_{1}x}$$
+
+O símbolo "^" em $\beta_{0}$ e $\beta_{1}$ indica que estamos estimando os parâmetros do modelo populacional , já que contaremos apenas com dados amostrais no nosso cálculo.  $\hat{y}$ é o valo previsto do salário médio dos funcionários com idade "x".
+
+O objetivo é obter estimadores $\hat{\beta_{0}}$ e $\hat{\beta_{1}}$, isto é, a reta, que melhor se ajusta aos dados. Como critério de ajuste utilizaremos a "Soma de Quadrados dos Resíduos" (SQR), definida a seguir. O resíduo da7 observação "i" da amostra é a diferença entre o seu valor observado $y_{i}$ e o valor previsto $\hat{y}_{i}$.
+
+
+$$ SQR = min \sum_{i=1}^{n} (y_{i}-\hat{y}_{i})^{2} = min \sum_{i=1}^{n} e_{i}^{2}$$
+
+em que $e_{i}$ é o resíduo da observação "i".
+
+
+
+
+## Coeficiente de Regressão Linear
+
+Para fazer uma análise de regressão no R, usaremos a função *lm*, do **pacote basic**, e os dados do Supermercado Formosa. A sintaxe para rodar a regressão linear simples é **lm(y~x)**.
+
+
+
+```{r}
+Modelo1 = lm(mercado$SALARIO~mercado$IDADE)
+summary(Modelo1)
+```
+
+Na saída acima podemos ver os estimadores $\hat{\beta_{0}}$ e $\hat{\beta_{1}}$ (estimate), seus erros padrão (Std. Error), a estatística t (t value) e o valor-p do teste de hipótese (Pr(>|t|)).
+
+Os etimadores $\hat{\beta_{0}}$ e $\hat{\beta_{1}}$ possuem um erro padrão que depende de vários fatores, entre eles o tamanho da amostra e o desvio-padrão do erro do modelo. Com esses valores podemos construir uma estimativa intervalar, com determinado nível de confiança, para os parâmetros populacionais desconhecidos $\beta_{0}$ e $\beta_{1}$.
+
+Na linguagem R, para obter o intervalo de 95\% de confiança para a inclinação da reta, utiliza-se o script:
+
+
+```{r}
+confint(Modelo1, "IDADE", level = 0.95)
+```
+
+## Previsão
+
+Para fazer a previsão do salário usando a linguagem R, pode-se utilizar a função **predict**. Por exemplo, que estamos interessados prever o salário de um funcionário de 40 anos e outro de 50 anos. 
+
+O script no R é dado a seguir: 
+
+
+
+```{r}
+NovaIdade = data.frame(IDADE = c(40,50))
+
+predict(Modelo1, 
+        newdata = NovaIdade, 
+        interval = "prediction"
+        )
+```
+
+
+Pode-se concluir, que um funcionário de 40 anos terá um salário entre **R$ ** e  **R$ ** com 95\% de probabilidade.
+
+
+
+
+
+
+
+
+
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+
+
+# Regressão Linear Multipla
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::

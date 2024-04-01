@@ -16,11 +16,6 @@ body{text-align: justify}
 A Técnica de **Regressão Linear** é uma das mais conhecida e utilizadas na Estatística. È a porta de entrada para diversos modelos preditivos mais sofisticados, já que muitos destes usam conceitos também utilizados na regressão linear. Essencialmente, a regressão linear pode ser utilizada para prever o valor de uma variável quantitativa (**dependente**) em função das outras variáveis (**independentes ou preditoras**).
 
 
-::: progress
-::: {.progress-bar style="width: 100%;"}
-:::
-:::
-
 
 # Regressão Linear Simples
 
@@ -42,8 +37,10 @@ $\beta_{0} + \beta_{1}$ são parâmetros do modelo e podem ser estimados a parti
 Primeiro Passo é definir o diretório de trabalho no R
 
 
-```{r}
+```{r diretorio, message=FALSE, warning=FALSE}
+
 setwd('C:/Users/mario Dhiego/Documents/Modelo_Regresao1/Modelo_Regresao1')
+
 ```
 
 Segundo Passo é carregar a base de dados, chamada de mercado. Para isso é necessário instalar o pacote para leitura de arquivo com extensão do tipo excel(.xlsx) por meio do comando **install.packages("readxl")**.
@@ -51,7 +48,7 @@ Segundo Passo é carregar a base de dados, chamada de mercado. Para isso é nece
 Posteriormente, ativar o pacote no R com o comando **library(readxl)**. Tendo um detalhe fundamental, que se instala somente um vez o pacote, e se ativa toda vez que for usar.
 
 
-```{r base1}
+```{r base1, message=FALSE, warning=FALSE}
 library(readxl)
 
 mercado <- read_excel('mercado.xlsx')
@@ -59,10 +56,13 @@ mercado <- read_excel('mercado.xlsx')
 ```
 
 
+### Gráfico de Dispersão Geral
+
 O script utilizado para gerar o gráfico de dispersão no R é mostrado a seguir:
 
 
-```{r Dispersao1}
+```{r Dispersao1, message=FALSE, warning=FALSE}
+
 library(ggplot2)
 library(plotly)
 
@@ -76,13 +76,52 @@ Plot2 <- ggplot(mercado, aes(x=IDADE, y= SALARIO))+
   theme_bw()+
   labs(x="IDADE", 
        y="SALÁRIO", 
-       title="Diagrama de Dispersão", 
+       title="Diagrama de Dispersão Geral", 
        subtitle = "Renda Salarial")
 ggplotly(Plot2)
 ```
 
+
 O gráfico mostra originalmente um ponto muito distante dos demais, no qual é o salário de um dos diretores da Empresa que ganha **R$ 12.460,00**
 
+
+
+```{r base2, message=FALSE, warning=FALSE}
+library(readxl)
+
+mercado2 <- read_excel('mercado2.xlsx')
+
+```
+
+
+O script utilizado para gerar o gráfico de dispersão no R sem a observação 69 (**R$ 12.460,00**) é mostrado a seguir:
+
+
+### Gráfico de Dispersão sem Outliers
+
+
+```{r Dispersao2, message=FALSE, warning=FALSE}
+
+library(ggplot2)
+library(plotly)
+
+Plot3 <- ggplot(mercado2, aes(x=IDADE, y= SALARIO))+
+  geom_point(size = 3.5, 
+             pch = 21, 
+             col = 'black',
+             fill = 'red')+
+  geom_smooth(method="lm", 
+              se= TRUE)+
+  theme_bw()+
+  labs(x="IDADE", 
+       y="SALÁRIO", 
+       title="Diagrama de Dispersão sem Outliers", 
+       subtitle = "Renda Salarial")
+ggplotly(Plot3)
+```
+
+
+A presença desse aoutlier tem consequências importantes para o resultado da7 regressão.
 
 
 O gráfico mostra que há uma tendência de crescimento do salário quando a idade aumenta, ilustrado pela reta inclinada, que chamaremos de reta de mínimos quadrados.
@@ -112,9 +151,11 @@ Para fazer uma análise de regressão no R, usaremos a função *lm*, do **pacot
 
 
 
-```{r}
+```{r model1, message=FALSE, warning=FALSE}
+
 Modelo1 = lm(mercado$SALARIO~mercado$IDADE)
 summary(Modelo1)
+
 ```
 
 Na saída acima podemos ver os estimadores $\hat{\beta_{0}}$ e $\hat{\beta_{1}}$ (estimate), seus erros padrão (Std. Error), a estatística t (t value) e o valor-p do teste de hipótese (Pr(>|t|)).
@@ -150,14 +191,6 @@ Pode-se concluir, que um funcionário de 40 anos terá um salário entre **R$ **
 
 
 
-
-
-
-
-
-
-
-
 ::: progress
 ::: {.progress-bar style="width: 100%;"}
 :::
@@ -165,10 +198,3 @@ Pode-se concluir, que um funcionário de 40 anos terá um salário entre **R$ **
 
 
 
-# Regressão Linear Multipla
-
-
-::: progress
-::: {.progress-bar style="width: 100%;"}
-:::
-:::

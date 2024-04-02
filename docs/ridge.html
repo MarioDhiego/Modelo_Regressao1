@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Técnicas de Machine Learning no R - 3&nbsp; Regressão Logística</title>
+<title>Técnicas de Machine Learning no R - 4&nbsp; Regressão Ridge</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -30,8 +30,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./ridge.html" rel="next">
-<link href="./intro.html" rel="prev">
+<link href="./lasso.html" rel="next">
+<link href="./summary.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -79,7 +79,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./summary.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Regressão Logística</span></a></li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./ridge.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Regressão Ridge</span></a></li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
@@ -162,13 +162,13 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./summary.html" class="sidebar-item-text sidebar-link active">
+  <a href="./summary.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Regressão Logística</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ridge.html" class="sidebar-item-text sidebar-link">
+  <a href="./ridge.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Regressão Ridge</span></span></a>
   </div>
 </li>
@@ -184,14 +184,20 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Índice</h2>
+   
+  <ul>
+  <li><a href="#métodos-pra-determinar-k" id="toc-métodos-pra-determinar-k" class="nav-link active" data-scroll-target="#métodos-pra-determinar-k"><span class="header-section-number">4.1</span> Métodos pra Determinar <span class="math inline">\(k\)</span></a></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/MarioDhiego/edit/main/ridge.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/MarioDhiego/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Regressão Logística</span></h1>
+<h1 class="title"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Regressão Ridge</span></h1>
 </div>
 
 
@@ -207,16 +213,31 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 <style>
-body{text-align: justify}
+  body{text-align: justify}
 </style>
 <div class="progress">
 <div class="progress-bar" style="width: 100%;">
 
 </div>
 </div>
-<p>A regressão logística permite estimar a probabilidade de que uma observação pertença a cada um <span class="math inline">\(k\)</span> grupos (ou categorias) predeterminados. Posteriormente, podemos classificá-la em um desses grupos, de acordo com os valores dessas probabilidades.</p>
-<p>Um dos problemas operacionais mais complexos na aplicação da regressão logística é a diferenciação correta e clara dos dois grupos considerados, evitando qualquer tipo de ambiguidade.</p>
-<p>Por exemplo, no caso da análise de crédito, a definição do que seja um <strong>Bom ou um Mal Cliente</strong> é extremamente controversa.</p>
+<p>A regressão de Cume, Cumeeira, em Crista ou chamada <strong>Ridge Regression</strong>, proposta por Hoerl e Kennard (1970a), é um dos vários métodos propostos para remediar os problemas de multicolinearidade, alterando o método de mínimos quadrados para permitir estimadores viesados dos coeficientes de regressão.</p>
+<p>Quando um estimador tem um viés pequeno e é substancialmente mais preciso que o estimador não viesado, este pode ser escolhido desde que tenha grande probabilidade de estar próximo do valor verdadeiro (Hoerl; Kennard 1970b). Assim a probabilidade do estimador de cumeeira estar próximo do valor verdadeiro é muito maior que para o estimador não viesado de mínimos quadrados ordinais (NETER et al., 1996).</p>
+<p>Uma medida da combinação do efeito do viés e da variação amostral é o valor esperado do quadrado do desvio do estimador e do valor verdadeiro. Esta medida é chamada de Erro Médio Quadrático (EMQ), e pode ser escrita como,</p>
+<p><span class="math display">\[ E(\hat{\beta}-\beta)^{2} = V(\hat{\beta}) + [E(\hat{\beta})-\beta]^{2}\]</span></p>
+<p>Dessa maneira, o EMQ é igual à variância do estimador mais o viés ao quadrado. Note que se o estimador for não viesado, o erro médio quadrático é igual ao estimador da variância. Pelo método de mínimos quadrados, o coeficiente <span class="math inline">\(\beta\)</span> pode ser estimado como,</p>
+<p><span class="math display">\[ \hat{\beta} = (X^{'}X)^{-1}X^{'}Y \]</span></p>
+<p>e as estimativas e suas variâncias poderão ser incertas na presença de multicolinearidade. A regressão de cume consiste na adição de coeficientes a diagonal principal da matriz de correlações <span class="math inline">\((X^{'}X)^{-1}\)</span> , causando um decréscimo na variância das estimativas. Desta maneira, o estimador de cume de <span class="math inline">\(\beta\)</span> é obtido por,</p>
+<p><span class="math display">\[\hat{\beta} = (X^{'}X + k)^{-1}X^{'}Y\]</span> Sendo <span class="math inline">\(k= diagonal(k_{1},k_{2},...,k_{p}), k_{i} \geq 0\)</span>, onde um procedimento bastante usado é <span class="math inline">\(k=kI\)</span>, <span class="math inline">\(k_{i} \geq 0\)</span> . O estimador em cume é na verdade uma família de estimadores, onde <span class="math inline">\(k\)</span> é um valor pequeno que deve ser escolhido a critério do pesquisador. Em geral, aumenta-se gradativamente o valor de <span class="math inline">\(k\)</span> até que os estimadores dos coeficientes tornam-se estáveis, não variam. Se a escolha for <span class="math inline">\(k_{i} = 0\)</span>, para todo <span class="math inline">\(i\)</span>, tem-se o estimador de Mínimos Quadrados (NETER; WASSERMAN, 1974), (DRAPER; SMITH, 1981) e (ELIAN, 1998).</p>
+<p>Quando os dados possuem traços de multicolinearidade sempre existe um valor para o parâmetro <span class="math inline">\(k\)</span> no qual os estimadores de Regressão em Crista produzem um Quadrado Médio do Erro (QME) menor do que o QME produzido pelos Estimadores de mínimos quadrados ordinários (HOERL; KENNARD, 1970a), (NETER; WASSERMAN, 1974), (DRAPER; SMITH, 1981), (ELIAN, 1998),</p>
+<p>A função estimada pela Regressão em Crista produz predições com novas observações que tendem a serem mais precisas do que as feitas pela função estimada pelo método de mínimos quadrados ordinários, quando as variáveis independentes são correlacionadas e a nova observação segue o mesmo padrão de multicolinearidade, esta precisão na predição de novas observações é favorecida pela Regressão de Cume, especialmente quando a multicolinearidade é forte (NETER; WASSERMAN, 1974), (DRAPER; SMITH, 1981), (ELIAN, 1998).</p>
+<section id="métodos-pra-determinar-k" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="métodos-pra-determinar-k"><span class="header-section-number">4.1</span> Métodos pra Determinar <span class="math inline">\(k\)</span></h2>
+<p>Um valor ideal para o parâmetro <span class="math inline">\(K\)</span>, o qual resulta em um menor QME que o obtido pelo Método de Mínimos Quadrados Ordinários (MQO) depende do vetor de parâmetro desconhecido e da variância do erro também desconhecido (HOERL; KENNARD, 1970a). Conseqüentemente, K precisa ser determinado empiricamente ou obtido dos dados, e não é possível determinar o valor ideal do parâmetro de cume K. Muitos métodos têm sido propostos para obter os valores apropriados, mas não existe um consenso de qual método é o mais adequado. Assim, o parâmetro de ridge <span class="math inline">\(K\)</span> será estimado a partir de dois métodos: Gráfico do Traço de Cume (<strong>Ridge Trace Plot</strong>) e Gráfico do Fator de Inflação da Variância (<strong>Variance Inflation Factor Plot</strong>).</p>
+<p>Um dos obstáculos principais em utilizar a regressão de cume está em escolher um valor de k. O traço de cume é um esboço dos valores de (p-1) coeficientes estimados de regressão de cume padronizados para diferentes valores de <span class="math inline">\(K\)</span>, usualmente entre 0 e 1. Feito o traço, pode-se examinar um valor de <span class="math inline">\(K\)</span> onde as estimativas se estabilizam. Hoerl e Kennard (1970b) desenvolveram um gráfico bidimensional do valor de cada coeficiente versus <span class="math inline">\(k\)</span>, mostrando como os valores de <span class="math inline">\(\hat{\beta}\)</span> variam em função dos valores de k, ou seja, a partir do gráfico o analista escolhe um valor para K que os coeficientes da regressão tendem a ser mais precisos, que o MQO, quando os dados estão sob o efeito da multicolinearidade.</p>
+<p>Segundo Chagas et al.&nbsp;(2009), o objetivo é escolher um valor de k a partir do qual as estimativas dos parâmetros sejam relativamente estáveis gerando uma série de coeficientes com menor soma dos quadrados do resíduo do que a solução clássica. Assim, na medida em que se aumenta o valor de k, a soma de quadrados dos resíduos também aumentará, sugerindo iniciar com valores pequenos de k e ir aumentando gradativamente até que os coeficientes se estabilizem.</p>
+<p>Para Hoerl e Kennard (1970a), o Fator de Inflação da Variância, mostra a variabilidade em função do valor de K, ou seja, à medida que se atribui valores para K que estabilizam os coeficientes de regressão de cume, a variabilidade diminui, removendo a multicolinearidade. O traço do cume pode também ser usado para sugerir variável(s) que pode(m) ser retiradas do modelo. Algumas variáveis cuja estimativa do parâmetro é instável a cada mudança do valor de K ou que decresce para zero são candidatos para anulação.</p>
+<p>Atualmente na literatura, existem várias medidas corretivas para suavizar os efeitos provocados pela multicolinearidade, outros métodos são propostos desde simples as mais complexas, tais como, Ampliação do Tamanho da Amostra e Remoção das Variáveis (HAIR et al., 2005), utilização de Modelo de Regressão por Componente Principais (SILVA et al., 2009), Modelo de Regressão por Análise Fatorial (VALENTE et al., 2011), Regressão com Variáveis Latentes (MALHOTRA, 2011) e Regressão via Redes Neurais (RODRIGUES et al., 2010) e (LEAL et al., 2015).</p>
+<p>Para rodar a regressão Ridge na linguagem R, usaremos o <strong>pacote glmnet</strong>.</p>
 <div class="progress">
 <div class="progress-bar" style="width: 100%;">
 
@@ -224,6 +245,7 @@ body{text-align: justify}
 </div>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -576,13 +598,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./intro.html" class="pagination-link">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Regressão Linear</span></span>
+      <a href="./summary.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Regressão Logística</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./ridge.html" class="pagination-link">
-        <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Regressão Ridge</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./lasso.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Regressão LASSO</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -592,7 +614,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     <div class="nav-footer-left">Was Written by (VALENTE - 2024).</div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/MarioDhiego/edit/main/summary.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/MarioDhiego/issues/new" class="toc-action">Report an issue</a></p></div></div></div>
+    </div>
     <div class="nav-footer-right">This book was built with <a href="https://quarto.org/">Quarto</a>.</div>
   </div>
 </footer>

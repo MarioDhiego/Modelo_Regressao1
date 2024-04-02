@@ -1,0 +1,121 @@
+
+```{=html}
+<style>
+  body{text-align: justify}
+</style>
+```
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+  
+  
+# Análise Exploratória
+  
+Primeiro Passo é definir o diretório de trabalho no R
+
+
+```{r diretorio, message=FALSE, warning=FALSE}
+
+setwd('C:/Users/mario Dhiego/Documents/Modelo_Regresao1/Modelo_Regresao1')
+
+```
+
+Segundo Passo é carregar a base de dados, chamada de mercado. Para isso é necessário instalar o pacote para leitura de arquivo com extensão do tipo excel(.xlsx) por meio do comando **install.packages("readxl")**.
+
+Posteriormente, ativar o pacote no R com o comando **library(readxl)**. Tendo um detalhe fundamental, que se instala somente um vez o pacote, e se ativa toda vez que for usar.
+
+
+```{r base1, message=FALSE, warning=FALSE}
+library(readxl)
+
+mercado <- read_excel('mercado.xlsx')
+mercado2 <- read_excel('mercado2.xlsx')
+```
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+
+## Variáveis Qualitativas
+### Tabelas de Frequência: Simples
+
+```{r tab1, message=FALSE, warning=FALSE}
+
+table(mercado2$CARGO)
+table(mercado2$EDUCAÇÃO)
+table(mercado2$LOCAL)
+```
+
+
+### Tabelas de Frequência: Proporção
+
+```{r tab2, message=FALSE, warning=FALSE}
+
+prop.table(table(mercado2$CARGO))
+prop.table(table(mercado2$EDUCAÇÃO))
+prop.table(table(mercado2$LOCAL))
+```
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+## Variáveis Quantitativas
+### Medidas Resumo Geral
+
+
+```{r medida1, message=FALSE, warning=FALSE}
+
+summary(mercado2$IDADE)
+summary(mercado2$TEMPOCASA)
+summary(mercado2$SALARIO)
+
+```
+
+
+
+
+### Interpretação p/ Salário
+
+* o 1º quartil(1 st Qu.) indica que 25% dos funcionários têm renda salarial menor ou igual a R$ 4.894 e o 3º quartil(3 rd Qu.) indica que 75% têm renda menor ou igual a R$ 6.306.
+
+* Estes dois valores indicam que 50% dos funcionários tem renda nesse intervalo, o que já nos dá uma idéia de variabilidade da Renda.
+
+* Quanto maior a diferença entre o 3º e o 1º quartil, maior a dispersão da variável.
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+
+### Relação Gráfica: Variáveis Quantitativas
+
+
+A função **pairs.panels()** do **pacote psych** no R gera um figura com os gráficos de dispersão 2 a 2, os histogramas de cada variável e as correlações das variaveis 2 a 2.
+
+
+
+```{r corr1, message=FALSE, warning=FALSE}
+
+library(psych)
+pairs.panels(mercado,
+             smoother = TRUE)
+
+```
+
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::

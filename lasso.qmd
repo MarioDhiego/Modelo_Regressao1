@@ -1,0 +1,28 @@
+
+
+```{=html}
+<style>
+  body{text-align: justify}
+</style>
+```
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+  
+  
+
+# Regressão LASSO
+
+A regressçao ridge mantém todas as variáveis no modelo final, memso quando $k$ é grande. Isso pode ser um problema na interpretação do modelo, por conta da quantidade de variáveis e pelos baixos coeficientes. O lasso pe uma alternativa à regressão ridge que permite obter um modelo final com um subconjunto de variáveis.
+
+Para rodar a regressão Lasso na linguagem R, usaremos o **pacote glmnet**.
+
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::

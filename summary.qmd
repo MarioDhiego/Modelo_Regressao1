@@ -1,7 +1,31 @@
-# Summary
 
-In summary, this book has no content whatsoever.
-
-```{r}
-1 + 1
+```{=html}
+<style>
+body{text-align: justify}
+</style>
 ```
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+
+# Regressão Logística
+
+A regressão logística permite estimar a probabilidade de que uma observação pertença a cada um $k$ grupos (ou categorias) predeterminados. Posteriormente, podemos classificá-la em um desses grupos, de acordo com os valores dessas probabilidades.
+
+
+Um dos problemas operacionais mais complexos na aplicação da regressão logística é a diferenciação correta e clara dos dois grupos considerados, evitando qualquer tipo de ambiguidade.
+
+Por exemplo, no caso da análise de crédito, a definição do que seja um **Bom ou um Mal Cliente** é extremamente controversa.
+
+
+
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::

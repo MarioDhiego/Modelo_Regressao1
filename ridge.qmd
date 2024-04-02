@@ -1,0 +1,67 @@
+
+
+```{=html}
+<style>
+  body{text-align: justify}
+</style>
+```
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+
+  
+# Regressão Ridge
+
+A regressão de Cume, Cumeeira, em Crista ou chamada **Ridge Regression**, proposta por Hoerl e Kennard (1970a), é um dos vários métodos propostos para remediar os problemas de multicolinearidade, alterando o método de mínimos quadrados para permitir estimadores viesados dos coeficientes de regressão. 
+
+Quando um estimador tem um viés pequeno e é substancialmente mais preciso que o estimador não viesado, este pode ser escolhido desde que tenha grande probabilidade de estar próximo do valor verdadeiro (Hoerl; Kennard 1970b). Assim a probabilidade do estimador de cumeeira   estar próximo do valor verdadeiro   é muito maior que para o estimador não viesado de mínimos quadrados ordinais (NETER et al., 1996).
+
+Uma medida da combinação do efeito do viés e da variação amostral é o valor esperado do quadrado do desvio do estimador   e do valor verdadeiro. Esta medida é chamada de Erro Médio Quadrático (EMQ), e pode ser escrita como,
+
+
+$$ E(\hat{\beta}-\beta)^{2} = V(\hat{\beta}) + [E(\hat{\beta})-\beta]^{2}$$
+
+Dessa maneira, o EMQ é igual à variância do estimador mais o viés ao quadrado. Note que se o estimador for não viesado, o erro médio quadrático é igual ao estimador da variância. Pelo método de mínimos quadrados, o coeficiente $\beta$  pode ser estimado como,
+
+$$ \hat{\beta} = (X^{'}X)^{-1}X^{'}Y $$
+
+e as estimativas e suas variâncias poderão ser incertas na presença de multicolinearidade. A regressão de cume consiste na adição de coeficientes   a diagonal principal da matriz de correlações $(X^{'}X)^{-1}$ , causando um decréscimo na variância das estimativas. Desta maneira, o estimador de cume de $\beta$ é obtido por,
+
+
+
+$$\hat{\beta} = (X^{'}X + k)^{-1}X^{'}Y$$
+Sendo $k= diagonal(k_{1},k_{2},...,k_{p}), k_{i} \geq 0$, onde um procedimento bastante usado é  $k=kI$, $k_{i} \geq 0$ . O estimador em cume é na verdade uma família de estimadores, onde $k$ é um valor pequeno que deve ser escolhido a critério do pesquisador. Em geral, aumenta-se gradativamente o valor de $k$ até que os estimadores dos coeficientes tornam-se estáveis, não variam. Se a escolha for $k_{i} = 0$, para todo $i$, tem-se o estimador de Mínimos Quadrados (NETER; WASSERMAN, 1974), (DRAPER; SMITH, 1981) e (ELIAN, 1998). 
+
+
+Quando os dados possuem traços de multicolinearidade sempre existe um valor para o parâmetro $k$ no qual os estimadores de Regressão em Crista produzem um Quadrado Médio do Erro (QME) menor do que o QME produzido pelos Estimadores de mínimos quadrados ordinários (HOERL; KENNARD, 1970a), (NETER; WASSERMAN, 1974), (DRAPER; SMITH, 1981), (ELIAN, 1998),  
+
+
+A função estimada pela Regressão em Crista produz predições com novas observações que tendem a serem mais precisas do que as feitas pela função estimada pelo método de mínimos quadrados ordinários, quando as variáveis independentes são correlacionadas e a nova observação segue o mesmo padrão de multicolinearidade, esta precisão na predição de novas observações é favorecida pela Regressão de Cume, especialmente quando a multicolinearidade é forte (NETER; WASSERMAN, 1974), (DRAPER; SMITH, 1981), (ELIAN, 1998). 
+
+
+## Métodos pra Determinar $k$
+
+Um valor ideal para o parâmetro $K$, o qual resulta em um menor QME que o obtido pelo Método de Mínimos Quadrados Ordinários (MQO) depende do vetor de parâmetro  desconhecido e da variância do erro também desconhecido (HOERL; KENNARD, 1970a). Conseqüentemente, K precisa ser determinado empiricamente ou obtido dos dados, e não é possível determinar o valor ideal do parâmetro de cume K. Muitos métodos têm sido propostos para obter os valores apropriados, mas não existe um consenso de qual método é o mais adequado. Assim, o parâmetro de ridge $K$ será estimado a partir de dois métodos: Gráfico do Traço de Cume (**Ridge Trace Plot**) e Gráfico do Fator de Inflação da Variância (**Variance Inflation Factor Plot**). 
+
+Um dos obstáculos principais em utilizar a regressão de cume está em escolher um valor de k. O traço de cume é um esboço dos valores de (p-1) coeficientes estimados de regressão de cume padronizados para diferentes valores de $K$, usualmente entre 0 e 1. Feito o traço, pode-se examinar um valor de $K$ onde as estimativas se estabilizam. Hoerl e Kennard (1970b) desenvolveram um gráfico bidimensional do valor de cada coeficiente versus $k$, mostrando como os valores de $\hat{\beta}$ variam em função dos valores de k, ou seja, a partir do gráfico o analista escolhe um valor para K que os coeficientes da regressão tendem a ser mais precisos, que o MQO, quando os dados estão sob o efeito da multicolinearidade. 
+
+Segundo Chagas et al. (2009), o objetivo é escolher um valor de k a partir do qual as estimativas dos parâmetros sejam relativamente estáveis gerando uma série de coeficientes com menor soma dos quadrados do resíduo do que a solução clássica. Assim, na medida em que se aumenta o valor de k, a soma de quadrados dos resíduos também aumentará, sugerindo iniciar com valores pequenos de k e ir aumentando gradativamente até que os coeficientes se estabilizem.
+
+Para Hoerl e Kennard (1970a), o Fator de Inflação da Variância, mostra a variabilidade em função do valor de K, ou seja, à medida que se atribui valores para K que estabilizam os coeficientes de regressão de cume, a variabilidade diminui, removendo a multicolinearidade. O traço do cume pode também ser usado para sugerir variável(s) que pode(m) ser retiradas do modelo. Algumas variáveis cuja estimativa do parâmetro é instável a cada mudança do valor de K ou que decresce para zero são candidatos para anulação.
+
+Atualmente na literatura, existem várias medidas corretivas para suavizar os efeitos provocados pela multicolinearidade, outros métodos são propostos desde simples as mais complexas, tais como, Ampliação do Tamanho da Amostra e Remoção das Variáveis (HAIR et al., 2005), utilização de Modelo de Regressão por Componente Principais (SILVA et al., 2009), Modelo de Regressão por Análise Fatorial (VALENTE et al., 2011), Regressão com Variáveis Latentes (MALHOTRA, 2011) e Regressão via Redes Neurais (RODRIGUES et al., 2010) e (LEAL et al., 2015). 
+
+Para rodar a regressão Ridge na linguagem R, usaremos o **pacote glmnet**.
+
+
+
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Técnicas de Machine Learning no R - 3&nbsp; Regressão Logística</title>
+<title>Técnicas de Machine Learning no R - 5&nbsp; Regressão LASSO</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -30,8 +30,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./ridge.html" rel="next">
-<link href="./intro.html" rel="prev">
+<link href="./ridge.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -79,7 +78,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./summary.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Regressão Logística</span></a></li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./lasso.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Regressão LASSO</span></a></li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
@@ -162,7 +161,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./summary.html" class="sidebar-item-text sidebar-link active">
+  <a href="./summary.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Regressão Logística</span></span></a>
   </div>
 </li>
@@ -174,7 +173,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./lasso.html" class="sidebar-item-text sidebar-link">
+  <a href="./lasso.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Regressão LASSO</span></span></a>
   </div>
 </li>
@@ -191,7 +190,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Regressão Logística</span></h1>
+<h1 class="title"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Regressão LASSO</span></h1>
 </div>
 
 
@@ -207,16 +206,15 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 <style>
-body{text-align: justify}
+  body{text-align: justify}
 </style>
 <div class="progress">
 <div class="progress-bar" style="width: 100%;">
 
 </div>
 </div>
-<p>A regressão logística permite estimar a probabilidade de que uma observação pertença a cada um <span class="math inline">\(k\)</span> grupos (ou categorias) predeterminados. Posteriormente, podemos classificá-la em um desses grupos, de acordo com os valores dessas probabilidades.</p>
-<p>Um dos problemas operacionais mais complexos na aplicação da regressão logística é a diferenciação correta e clara dos dois grupos considerados, evitando qualquer tipo de ambiguidade.</p>
-<p>Por exemplo, no caso da análise de crédito, a definição do que seja um <strong>Bom ou um Mal Cliente</strong> é extremamente controversa.</p>
+<p>A regressçao ridge mantém todas as variáveis no modelo final, memso quando <span class="math inline">\(k\)</span> é grande. Isso pode ser um problema na interpretação do modelo, por conta da quantidade de variáveis e pelos baixos coeficientes. O lasso pe uma alternativa à regressão ridge que permite obter um modelo final com um subconjunto de variáveis.</p>
+<p>Para rodar a regressão Lasso na linguagem R, usaremos o <strong>pacote glmnet</strong>.</p>
 <div class="progress">
 <div class="progress-bar" style="width: 100%;">
 
@@ -576,14 +574,11 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./intro.html" class="pagination-link">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Regressão Linear</span></span>
+      <a href="./ridge.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Regressão Ridge</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./ridge.html" class="pagination-link">
-        <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Regressão Ridge</span></span> <i class="bi bi-arrow-right-short"></i>
-      </a>
   </div>
 </nav>
 </div> <!-- /content -->
@@ -592,7 +587,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     <div class="nav-footer-left">Was Written by (VALENTE - 2024).</div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/MarioDhiego/edit/main/summary.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/MarioDhiego/issues/new" class="toc-action">Report an issue</a></p></div></div></div>
+    <div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/MarioDhiego/edit/main/lasso.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/MarioDhiego/issues/new" class="toc-action">Report an issue</a></p></div></div></div>
     <div class="nav-footer-right">This book was built with <a href="https://quarto.org/">Quarto</a>.</div>
   </div>
 </footer>

@@ -99,6 +99,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 }</script>
 <script async="" src="https://hypothes.is/embed.js"></script>
 
+<script src="site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<link href="site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet">
+<script src="site_libs/datatables-binding-0.32/datatables.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<link href="site_libs/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet">
+<link href="site_libs/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet">
+<script src="site_libs/dt-core-1.13.6/js/jquery.dataTables.min.js"></script>
+<link href="site_libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet">
+<script src="site_libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
+
 
 </head>
 
@@ -220,16 +230,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Índice</h2>
    
   <ul>
-  <li><a href="#variáveis-qualitativas" id="toc-variáveis-qualitativas" class="nav-link active" data-scroll-target="#variáveis-qualitativas"><span class="header-section-number">1.1</span> Variáveis Qualitativas</a>
+  <li><a href="#diretório-de-trabalho" id="toc-diretório-de-trabalho" class="nav-link active" data-scroll-target="#diretório-de-trabalho"><span class="header-section-number">1.1</span> Diretório de Trabalho</a></li>
+  <li><a href="#carregar-dataset" id="toc-carregar-dataset" class="nav-link" data-scroll-target="#carregar-dataset"><span class="header-section-number">1.2</span> Carregar Dataset</a></li>
+  <li><a href="#variáveis-qualitativas" id="toc-variáveis-qualitativas" class="nav-link" data-scroll-target="#variáveis-qualitativas"><span class="header-section-number">1.3</span> Variáveis Qualitativas</a>
   <ul class="collapse">
-  <li><a href="#tabelas-de-frequência-simples" id="toc-tabelas-de-frequência-simples" class="nav-link" data-scroll-target="#tabelas-de-frequência-simples"><span class="header-section-number">1.1.1</span> Tabelas de Frequência: Simples</a></li>
-  <li><a href="#tabelas-de-frequência-proporção" id="toc-tabelas-de-frequência-proporção" class="nav-link" data-scroll-target="#tabelas-de-frequência-proporção"><span class="header-section-number">1.1.2</span> Tabelas de Frequência: Proporção</a></li>
+  <li><a href="#tabelas-de-frequência-simples" id="toc-tabelas-de-frequência-simples" class="nav-link" data-scroll-target="#tabelas-de-frequência-simples"><span class="header-section-number">1.3.1</span> Tabelas de Frequência: Simples</a></li>
+  <li><a href="#tabelas-de-frequência-proporção" id="toc-tabelas-de-frequência-proporção" class="nav-link" data-scroll-target="#tabelas-de-frequência-proporção"><span class="header-section-number">1.3.2</span> Tabelas de Frequência: Proporção</a></li>
   </ul></li>
-  <li><a href="#variáveis-quantitativas" id="toc-variáveis-quantitativas" class="nav-link" data-scroll-target="#variáveis-quantitativas"><span class="header-section-number">1.2</span> Variáveis Quantitativas</a>
+  <li><a href="#variáveis-quantitativas" id="toc-variáveis-quantitativas" class="nav-link" data-scroll-target="#variáveis-quantitativas"><span class="header-section-number">1.4</span> Variáveis Quantitativas</a>
   <ul class="collapse">
-  <li><a href="#medidas-resumo-geral" id="toc-medidas-resumo-geral" class="nav-link" data-scroll-target="#medidas-resumo-geral"><span class="header-section-number">1.2.1</span> Medidas Resumo Geral</a></li>
-  <li><a href="#interpretação-p-salário" id="toc-interpretação-p-salário" class="nav-link" data-scroll-target="#interpretação-p-salário"><span class="header-section-number">1.2.2</span> Interpretação p/ Salário</a></li>
-  <li><a href="#relação-gráfica-variáveis-quantitativas" id="toc-relação-gráfica-variáveis-quantitativas" class="nav-link" data-scroll-target="#relação-gráfica-variáveis-quantitativas"><span class="header-section-number">1.2.3</span> Relação Gráfica: Variáveis Quantitativas</a></li>
+  <li><a href="#medidas-resumo-geral" id="toc-medidas-resumo-geral" class="nav-link" data-scroll-target="#medidas-resumo-geral"><span class="header-section-number">1.4.1</span> Medidas Resumo Geral</a></li>
+  <li><a href="#interpretação-p-salário" id="toc-interpretação-p-salário" class="nav-link" data-scroll-target="#interpretação-p-salário"><span class="header-section-number">1.4.2</span> Interpretação p/ Salário</a></li>
+  </ul></li>
+  <li><a href="#análise-bivariada" id="toc-análise-bivariada" class="nav-link" data-scroll-target="#análise-bivariada"><span class="header-section-number">1.5</span> Análise Bivariada</a>
+  <ul class="collapse">
+  <li><a href="#relação-gráfica-variáveis-quantitativas" id="toc-relação-gráfica-variáveis-quantitativas" class="nav-link" data-scroll-target="#relação-gráfica-variáveis-quantitativas"><span class="header-section-number">1.5.1</span> Relação Gráfica: Variáveis Quantitativas</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/MarioDhiego/edit/main/exploratoria.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/MarioDhiego/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
@@ -262,10 +277,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </div>
 </div>
+<section id="diretório-de-trabalho" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="diretório-de-trabalho"><span class="header-section-number">1.1</span> Diretório de Trabalho</h2>
 <p>Primeiro Passo é definir o diretório de trabalho no R</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">setwd</span>(<span class="st">'C:/Users/mario Dhiego/Documents/Modelo_Regresao1/Modelo_Regresao1'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
+<section id="carregar-dataset" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="carregar-dataset"><span class="header-section-number">1.2</span> Carregar Dataset</h2>
 <p>Segundo Passo é carregar a base de dados, chamada de mercado. Para isso é necessário instalar o pacote para leitura de arquivo com extensão do tipo excel(.xlsx) por meio do comando <strong>install.packages(“readxl”)</strong>.</p>
 <p>Posteriormente, ativar o pacote no R com o comando <strong>library(readxl)</strong>. Tendo um detalhe fundamental, que se instala somente um vez o pacote, e se ativa toda vez que for usar.</p>
 <div class="cell">
@@ -274,29 +294,48 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>mercado <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">'mercado.xlsx'</span>)</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>mercado2 <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">'mercado2.xlsx'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>A importância da apresentação dos dados é fundamental no início da faxina dos dados.</p>
+<p>Para a apresentação dos dataset contamos com alguns pacotes na linguagem R que possibilitam a apresentação de tabelas de maneira bastante satisfatória (de forma elegante e até interativa).</p>
+<p>O <strong>pacote DT</strong> é uma excelente opção quando se trata de uma apresentação rápida, geral e dinâmica sobre a base de dados.</p>
+<p>O pacote DT fornece uma interface R para a biblioteca JavaScript <strong>DataTables</strong>. Objetos de dados R (matrizes ou quadros de dados) podem ser exibidos como tabelas em páginas HTML, e DataTables fornece filtragem, paginação, classificação e muitos outros recursos nas tabelas.</p>
+<p>Segue a base de dados (n=80) referentes as características dos Funcionários que trabalham no Supermercado Formosa, na cidade de Belém, Estado do Pará, em 2023.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DT)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">datatable</span>(mercado,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">class =</span> <span class="st">'cell-border stripe'</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">editable =</span> <span class="st">'cell'</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>          <span class="at">caption =</span> <span class="st">'Tabela 01: Banco de Dados sobre Funcionários do Supermercado Formosa, Belém - Pará, 2023.'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div class="datatables html-widget html-fill-item" id="htmlwidget-91b4593125541b55f056" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-91b4593125541b55f056">{"x":{"filter":"none","vertical":false,"caption":"<caption>Tabela 01: Banco de Dados sobre Funcionários do Supermercado Formosa, Belém - Pará, 2023.<\/caption>","editable":{"target":"cell","disable":{"columns":null},"numeric":[4,5,6],"date":[]},"data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80"],["SECUNDÁRIO","SUPERIOR","SECUNDÁRIO","SUPERIOR","SECUNDÁRIO","SUPERIOR","SUPERIOR","SUPERIOR","SUPERIOR","SECUNDÁRIO","SUPERIOR","SUPERIOR","SUPERIOR","SUPERIOR","SUPERIOR","SECUNDÁRIO","SUPERIOR","SECUNDÁRIO","SUPERIOR","SUPERIOR","SUPERIOR","SUPERIOR","SECUNDÁRIO","SUPERIOR","SECUNDÁRIO","SUPERIOR","SUPERIOR","SUPERIOR","SUPERIOR","SUPERIOR","SUPERIOR","SUPERIOR","SUPERIOR","SUPERIOR","SUPERIOR","SECUNDÁRIO","SUPERIOR","SECUNDÁRIO","SUPERIOR","SUPERIOR","SECUNDÁRIO","SUPERIOR","SUPERIOR","SECUNDÁRIO","SUPERIOR","SUPERIOR","SUPERIOR","SUPERIOR","SUPERIOR","SECUNDÁRIO","SUPERIOR","SUPERIOR","SUPERIOR","SUPERIOR","SUPERIOR","SUPERIOR","SECUNDÁRIO","SUPERIOR","SUPERIOR","SUPERIOR","SUPERIOR","SUPERIOR","SUPERIOR","SUPERIOR","SUPERIOR","SUPERIOR","SUPERIOR","SUPERIOR","SUPERIOR","SUPERIOR","SUPERIOR","SUPERIOR","SUPERIOR","SUPERIOR","SECUNDÁRIO","SUPERIOR","SUPERIOR","SUPERIOR","SUPERIOR","SUPERIOR"],["GERENTE","AUXILIAR","AUXILIAR","GERENTE","GERENTE","AUXILIAR","AUXILIAR","AUXILIAR","AUXILIAR","GERENTE","AUXILIAR","GERENTE","GERENTE","AUXILIAR","AUXILIAR","GERENTE","GERENTE","GERENTE","AUXILIAR","AUXILIAR","AUXILIAR","GERENTE","AUXILIAR","AUXILIAR","GERENTE","AUXILIAR","AUXILIAR","GERENTE","GERENTE","AUXILIAR","GERENTE","GERENTE","AUXILIAR","GERENTE","GERENTE","AUXILIAR","DIRETOR","AUXILIAR","AUXILIAR","AUXILIAR","AUXILIAR","AUXILIAR","GERENTE","AUXILIAR","GERENTE","GERENTE","AUXILIAR","AUXILIAR","GERENTE","AUXILIAR","GERENTE","GERENTE","DIRETOR","AUXILIAR","GERENTE","GERENTE","GERENTE","GERENTE","DIRETOR","AUXILIAR","AUXILIAR","AUXILIAR","AUXILIAR","DIRETOR","DIRETOR","DIRETOR","GERENTE","DIRETOR","PRESIDENTE","DIRETOR","DIRETOR","AUXILIAR","GERENTE","AUXILIAR","DIRETOR","GERENTE","AUXILIAR","DIRETOR","DIRETOR","AUXILIAR"],["INTERIOR","INTERIOR","CAPITAL","INTERIOR","INTERIOR","INTERIOR","CAPITAL","INTERIOR","INTERIOR","CAPITAL","INTERIOR","INTERIOR","CAPITAL","CAPITAL","INTERIOR","CAPITAL","INTERIOR","INTERIOR","INTERIOR","INTERIOR","CAPITAL","CAPITAL","INTERIOR","INTERIOR","INTERIOR","INTERIOR","INTERIOR","CAPITAL","CAPITAL","CAPITAL","INTERIOR","CAPITAL","CAPITAL","INTERIOR","CAPITAL","CAPITAL","CAPITAL","INTERIOR","INTERIOR","INTERIOR","CAPITAL","INTERIOR","INTERIOR","INTERIOR","CAPITAL","CAPITAL","CAPITAL","INTERIOR","CAPITAL","CAPITAL","CAPITAL","INTERIOR","CAPITAL","CAPITAL","INTERIOR","INTERIOR","INTERIOR","CAPITAL","CAPITAL","CAPITAL","CAPITAL","CAPITAL","CAPITAL","CAPITAL","CAPITAL","CAPITAL","CAPITAL","CAPITAL","CAPITAL","CAPITAL","CAPITAL","INTERIOR","INTERIOR","CAPITAL","CAPITAL","CAPITAL","INTERIOR","CAPITAL","CAPITAL","CAPITAL"],[30,32,33,34,36,37,37,37,38,38,39,39,40,40,40,40,42,43,43,43,44,44,45,45,45,45,45,45,46,46,46,46,46,47,47,47,47,48,48,49,49,50,50,50,50,50,51,51,51,52,52,52,52,53,54,55,55,55,55,56,56,57,58,58,59,60,60,60,60,62,63,64,65,65,65,65,67,69,70,72],[1,4,2,3,1,1,0,6,13,8,5,0,3,10,11,0,5,2,2,13,6,1,3,3,2,2,15,15,1,10,6,5,16,2,3,19,3,4,15,6,15,6,4,8,6,17,6,16,15,19,6,12,16,18,19,17,13,19,13,22,25,19,16,17,16,14,21,17,18,16,22,18,16,22,15,25,15,21,22,22],[4279.5,4575.4,4735.6,4863.1,5355.8,4567.1,4434.6,4894.3,5476.3,5624.7,5309.8,5324.5,4711,4817.1,5883.7,5598.6,5082.1,4607.6,4703.8,5747.9,4715.8,4872.7,4186.6,4540.1,4894.3,4894.3,5815.9,6051.3,4667.5,4817.1,5309.8,4918,5316.3,4894.3,5131,5905.2,6120.1,4791.9,6235.1,5254.4,5131.2,5087.4,5136.9,5143.2,5905.2,6051.3,5069.4,6235.1,5905.2,5501.5,5905.2,6556.4,6124.2,6197.1,6796.9,5951.7,6087.1,5686.5,6269.8,6583.5,6583.9,7481.2,5660.4,6583.9,6269.8,6415.8,6920.5,7088.8,12465.8,6920.5,7481.2,6556.4,6636.6,6583.9,6666,7257,6235.1,7257,7481.2,6415.8]],"container":"<table class=\"cell-border stripe\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>EDUCAÇÃO<\/th>\n      <th>CARGO<\/th>\n      <th>LOCAL<\/th>\n      <th>IDADE<\/th>\n      <th>TEMPOCASA<\/th>\n      <th>SALARIO<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":[4,5,6]},{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"EDUCAÇÃO","targets":1},{"name":"CARGO","targets":2},{"name":"LOCAL","targets":3},{"name":"IDADE","targets":4},{"name":"TEMPOCASA","targets":5},{"name":"SALARIO","targets":6}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
 <div class="progress">
 <div class="progress-bar" style="width: 100%;">
 
 </div>
 </div>
-<section id="variáveis-qualitativas" class="level2" data-number="1.1">
-<h2 data-number="1.1" class="anchored" data-anchor-id="variáveis-qualitativas"><span class="header-section-number">1.1</span> Variáveis Qualitativas</h2>
-<section id="tabelas-de-frequência-simples" class="level3" data-number="1.1.1">
-<h3 data-number="1.1.1" class="anchored" data-anchor-id="tabelas-de-frequência-simples"><span class="header-section-number">1.1.1</span> Tabelas de Frequência: Simples</h3>
+</section>
+<section id="variáveis-qualitativas" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="variáveis-qualitativas"><span class="header-section-number">1.3</span> Variáveis Qualitativas</h2>
+<section id="tabelas-de-frequência-simples" class="level3" data-number="1.3.1">
+<h3 data-number="1.3.1" class="anchored" data-anchor-id="tabelas-de-frequência-simples"><span class="header-section-number">1.3.1</span> Tabelas de Frequência: Simples</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(mercado2<span class="sc">$</span>CARGO)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(mercado2<span class="sc">$</span>CARGO)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 AUXILIAR  DIRETOR  GERENTE 
       37       12       30 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(mercado2<span class="sc">$</span>EDUCAÇÃO)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(mercado2<span class="sc">$</span>EDUCAÇÃO)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 SECUNDÁRIO   SUPERIOR 
         15         64 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(mercado2<span class="sc">$</span>LOCAL)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(mercado2<span class="sc">$</span>LOCAL)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
  CAPITAL INTERIOR 
@@ -304,26 +343,26 @@ SECUNDÁRIO   SUPERIOR
 </div>
 </div>
 </section>
-<section id="tabelas-de-frequência-proporção" class="level3" data-number="1.1.2">
-<h3 data-number="1.1.2" class="anchored" data-anchor-id="tabelas-de-frequência-proporção"><span class="header-section-number">1.1.2</span> Tabelas de Frequência: Proporção</h3>
+<section id="tabelas-de-frequência-proporção" class="level3" data-number="1.3.2">
+<h3 data-number="1.3.2" class="anchored" data-anchor-id="tabelas-de-frequência-proporção"><span class="header-section-number">1.3.2</span> Tabelas de Frequência: Proporção</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.table</span>(<span class="fu">table</span>(mercado2<span class="sc">$</span>CARGO))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.table</span>(<span class="fu">table</span>(mercado2<span class="sc">$</span>CARGO))<span class="sc">*</span><span class="dv">100</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
- AUXILIAR   DIRETOR   GERENTE 
-0.4683544 0.1518987 0.3797468 </code></pre>
+AUXILIAR  DIRETOR  GERENTE 
+46.83544 15.18987 37.97468 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.table</span>(<span class="fu">table</span>(mercado2<span class="sc">$</span>EDUCAÇÃO))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.table</span>(<span class="fu">table</span>(mercado2<span class="sc">$</span>EDUCAÇÃO))<span class="sc">*</span><span class="dv">100</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 SECUNDÁRIO   SUPERIOR 
- 0.1898734  0.8101266 </code></pre>
+  18.98734   81.01266 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.table</span>(<span class="fu">table</span>(mercado2<span class="sc">$</span>LOCAL))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.table</span>(<span class="fu">table</span>(mercado2<span class="sc">$</span>LOCAL))<span class="sc">*</span><span class="dv">100</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
  CAPITAL INTERIOR 
-0.556962 0.443038 </code></pre>
+ 55.6962  44.3038 </code></pre>
 </div>
 </div>
 <div class="progress">
@@ -333,30 +372,30 @@ SECUNDÁRIO   SUPERIOR
 </div>
 </section>
 </section>
-<section id="variáveis-quantitativas" class="level2" data-number="1.2">
-<h2 data-number="1.2" class="anchored" data-anchor-id="variáveis-quantitativas"><span class="header-section-number">1.2</span> Variáveis Quantitativas</h2>
-<section id="medidas-resumo-geral" class="level3" data-number="1.2.1">
-<h3 data-number="1.2.1" class="anchored" data-anchor-id="medidas-resumo-geral"><span class="header-section-number">1.2.1</span> Medidas Resumo Geral</h3>
+<section id="variáveis-quantitativas" class="level2" data-number="1.4">
+<h2 data-number="1.4" class="anchored" data-anchor-id="variáveis-quantitativas"><span class="header-section-number">1.4</span> Variáveis Quantitativas</h2>
+<section id="medidas-resumo-geral" class="level3" data-number="1.4.1">
+<h3 data-number="1.4.1" class="anchored" data-anchor-id="medidas-resumo-geral"><span class="header-section-number">1.4.1</span> Medidas Resumo Geral</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mercado2<span class="sc">$</span>IDADE)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mercado2<span class="sc">$</span>IDADE)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
   30.00   43.50   49.00   49.62   55.50   72.00 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mercado2<span class="sc">$</span>TEMPOCASA)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mercado2<span class="sc">$</span>TEMPOCASA)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
     0.0     3.5    12.0    10.8    16.5    25.0 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mercado2<span class="sc">$</span>SALARIO)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mercado2<span class="sc">$</span>SALARIO)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
    4187    4894    5660    5693    6270    7481 </code></pre>
 </div>
 </div>
 </section>
-<section id="interpretação-p-salário" class="level3" data-number="1.2.2">
-<h3 data-number="1.2.2" class="anchored" data-anchor-id="interpretação-p-salário"><span class="header-section-number">1.2.2</span> Interpretação p/ Salário</h3>
+<section id="interpretação-p-salário" class="level3" data-number="1.4.2">
+<h3 data-number="1.4.2" class="anchored" data-anchor-id="interpretação-p-salário"><span class="header-section-number">1.4.2</span> Interpretação p/ Salário</h3>
 <ul>
 <li><p>o 1º quartil(1 st Qu.) indica que 25% dos funcionários têm renda salarial menor ou igual a R$ 4.894 e o 3º quartil(3 rd Qu.) indica que 75% têm renda menor ou igual a R$ 6.306.</p></li>
 <li><p>Estes dois valores indicam que 50% dos funcionários tem renda nesse intervalo, o que já nos dá uma idéia de variabilidade da Renda.</p></li>
@@ -368,13 +407,43 @@ SECUNDÁRIO   SUPERIOR
 </div>
 </div>
 </section>
-<section id="relação-gráfica-variáveis-quantitativas" class="level3" data-number="1.2.3">
-<h3 data-number="1.2.3" class="anchored" data-anchor-id="relação-gráfica-variáveis-quantitativas"><span class="header-section-number">1.2.3</span> Relação Gráfica: Variáveis Quantitativas</h3>
+</section>
+<section id="análise-bivariada" class="level2" data-number="1.5">
+<h2 data-number="1.5" class="anchored" data-anchor-id="análise-bivariada"><span class="header-section-number">1.5</span> Análise Bivariada</h2>
+<p>Conhecer como as variáveis se relacionam também é um passo muito importante antes da elaboração de um modelo quantitativo.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>nf <span class="ot">=</span> <span class="fu">layout</span>(<span class="at">mat =</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>),<span class="dv">2</span>,<span class="dv">1</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>), <span class="at">height =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="fl">4.1</span>, <span class="fl">3.1</span>, <span class="fl">1.1</span>, <span class="fl">2.1</span>))</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(mercado<span class="sc">$</span>SALARIO, <span class="at">horizontal =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(mercado<span class="sc">$</span>SALARIO, <span class="at">main =</span> <span class="st">"Salário Médio"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="exploratoria_files/figure-html/box1-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>nf <span class="ot">=</span> <span class="fu">layout</span>(<span class="at">mat =</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>),<span class="dv">2</span>,<span class="dv">1</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>),<span class="at">height =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="fl">4.1</span>, <span class="fl">3.1</span>, <span class="fl">1.1</span>, <span class="fl">2.1</span>))</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(mercado<span class="sc">$</span>IDADE, <span class="at">horizontal =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(mercado<span class="sc">$</span>IDADE, <span class="at">main =</span> <span class="st">"Idade Médio"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="exploratoria_files/figure-html/box2-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="progress">
+<div class="progress-bar" style="width: 100%;">
+
+</div>
+</div>
+<section id="relação-gráfica-variáveis-quantitativas" class="level3" data-number="1.5.1">
+<h3 data-number="1.5.1" class="anchored" data-anchor-id="relação-gráfica-variáveis-quantitativas"><span class="header-section-number">1.5.1</span> Relação Gráfica: Variáveis Quantitativas</h3>
 <p>A função <strong>pairs.panels()</strong> do <strong>pacote psych</strong> no R gera um figura com os gráficos de dispersão 2 a 2, os histogramas de cada variável e as correlações das variaveis 2 a 2.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(psych)</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">pairs.panels</span>(mercado,</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">smoother =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(psych)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">pairs.panels</span>(mercado,</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">smoother =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="exploratoria_files/figure-html/corr1-1.png" class="img-fluid" width="672"></p>
 </div>

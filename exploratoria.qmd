@@ -13,7 +13,8 @@
   
   
 # Análise Exploratória
-  
+## Diretório de Trabalho 
+
 Primeiro Passo é definir o diretório de trabalho no R
 
 
@@ -22,6 +23,9 @@ Primeiro Passo é definir o diretório de trabalho no R
 setwd('C:/Users/mario Dhiego/Documents/Modelo_Regresao1/Modelo_Regresao1')
 
 ```
+
+
+## Carregar Dataset
 
 Segundo Passo é carregar a base de dados, chamada de mercado. Para isso é necessário instalar o pacote para leitura de arquivo com extensão do tipo excel(.xlsx) por meio do comando **install.packages("readxl")**.
 
@@ -34,6 +38,33 @@ library(readxl)
 mercado <- read_excel('mercado.xlsx')
 mercado2 <- read_excel('mercado2.xlsx')
 ```
+
+
+A importância da apresentação dos dados é fundamental no início da faxina dos dados. 
+
+Para a apresentação dos dataset contamos com alguns pacotes na linguagem R que possibilitam a apresentação de tabelas de maneira bastante satisfatória (de forma elegante e até interativa).
+
+O **pacote DT** é uma excelente opção quando se trata de uma apresentação rápida, geral e dinâmica sobre a base de dados.
+
+O pacote DT fornece uma interface R para a biblioteca JavaScript **DataTables**. Objetos de dados R (matrizes ou quadros de dados) podem ser exibidos como tabelas em páginas HTML, e DataTables fornece filtragem, paginação, classificação e muitos outros recursos nas tabelas.
+
+
+Segue a base de dados (n=80) referentes as características dos Funcionários que trabalham no Supermercado Formosa, na cidade de Belém, Estado do Pará, em 2023.
+
+
+
+```{r dataset1}
+
+library(DT)
+
+datatable(mercado,
+          class = 'cell-border stripe',
+          editable = 'cell',
+          caption = 'Tabela 01: Banco de Dados sobre Funcionários do Supermercado Formosa, Belém - Pará, 2023.')
+```
+
+
+
 
 
 ::: progress
@@ -57,9 +88,9 @@ table(mercado2$LOCAL)
 
 ```{r tab2, message=FALSE, warning=FALSE}
 
-prop.table(table(mercado2$CARGO))
-prop.table(table(mercado2$EDUCAÇÃO))
-prop.table(table(mercado2$LOCAL))
+prop.table(table(mercado2$CARGO))*100
+prop.table(table(mercado2$EDUCAÇÃO))*100
+prop.table(table(mercado2$LOCAL))*100
 ```
 
 
@@ -82,7 +113,6 @@ summary(mercado2$SALARIO)
 
 
 
-
 ### Interpretação p/ Salário
 
 * o 1º quartil(1 st Qu.) indica que 25% dos funcionários têm renda salarial menor ou igual a R$ 4.894 e o 3º quartil(3 rd Qu.) indica que 75% têm renda menor ou igual a R$ 6.306.
@@ -90,6 +120,45 @@ summary(mercado2$SALARIO)
 * Estes dois valores indicam que 50% dos funcionários tem renda nesse intervalo, o que já nos dá uma idéia de variabilidade da Renda.
 
 * Quanto maior a diferença entre o 3º e o 1º quartil, maior a dispersão da variável.
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+
+## Análise Bivariada
+
+Conhecer como as variáveis se relacionam também é um passo muito importante antes da elaboração de um modelo quantitativo.
+
+
+```{r box1, message=FALSE, warning=FALSE}
+
+nf = layout(mat = matrix(c(1,2),2,1, byrow = TRUE), height = c(1,2))
+par(mar = c(4.1, 3.1, 1.1, 2.1))
+
+boxplot(mercado$SALARIO, horizontal = TRUE)
+hist(mercado$SALARIO, main = "Salário Médio")
+
+```
+
+
+
+
+```{r box2, message=FALSE, warning=FALSE}
+
+nf = layout(mat = matrix(c(1,2),2,1, byrow = TRUE),height = c(1,2))
+
+par(mar = c(4.1, 3.1, 1.1, 2.1))
+
+boxplot(mercado$IDADE, horizontal = TRUE)
+hist(mercado$IDADE, main = "Idade Médio")
+
+```
+
+
+
 
 
 ::: progress

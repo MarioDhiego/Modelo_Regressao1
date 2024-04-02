@@ -180,6 +180,24 @@ summary(Modelo1)
 ```
 
 
+Uma das tarefas mais corriqueiras dos analista de dados é a produção de tabelas. Seja para apresentar frequências, estatísticas descritivas (media, mediana, moda, etc), seja para apresentar resultados de modelos de regressão.
+
+
+```{r}
+library(stargazer)
+library(kableExtra)
+library(skimr)
+
+mercado2 |> skim()
+
+```
+
+
+
+
+
+
+
 Na saída acima podemos ver os estimadores $\hat{\beta_{0}}$ e $\hat{\beta_{1}}$ (estimate), seus erros padrão (Std. Error), a estatística t (t value) e o valor-p do teste de hipótese (Pr(>|t|)).
 
 Os etimadores $\hat{\beta_{0}}$ e $\hat{\beta_{1}}$ possuem um erro padrão que depende de vários fatores, entre eles o tamanho da amostra e o desvio-padrão do erro do modelo. Com esses valores podemos construir uma estimativa intervalar, com determinado nível de confiança, para os parâmetros populacionais desconhecidos $\beta_{0}$ e $\beta_{1}$.
@@ -203,10 +221,12 @@ Na linguagem R, para obter o intervalo de 95\% de confiança para a inclinação
 confint(Modelo1, "IDADE", level = 0.95)
 ```
 
+
 ::: progress
 ::: {.progress-bar style="width: 100%;"}
 :::
 :::
+
 
 ## Previsão
 

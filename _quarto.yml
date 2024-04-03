@@ -1,4 +1,3 @@
-
 # Preâmbulo Geral
 project:
   type: book
@@ -17,7 +16,6 @@ book:
       affiliation:
         - Analista de Trânsito
         - DETRAN-PA
-
   page-footer:
     left: |
       Was Written by (VALENTE - 2024).

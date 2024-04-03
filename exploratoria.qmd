@@ -12,7 +12,21 @@
 :::
   
   
-# Análise Exploratória
+# Análise Exploratória de Dados (EDA)
+
+::: {.callout-note icon=false}
+
+## Mini Roteiro: AED
+
+Um Mini Roteiro para Realizar uma Análise Exploratória de Dados usando a Linguagem de Programação $R_{4.3}$ com auxílio da IDE RStudio.
+
+:::
+
+
+
+Em estatística, a análise exploratória de dados (AED) é uma abordagem à análise de conjuntos de dados de modo a resumir suas características principais, frequentemente com métodos visuais. Um modelo estatístico pode ou não ser usado, mas primariamente a AED tem como objetivo observar o que os dados podem nos dizer além da modelagem formal ou do processo de teste de hipóteses. A análise exploratória de dados foi promovida pelo estatístico norte-americano **John Tukey**, que incentivava os estatísticos a explorar os dados e possivelmente formular hipóteses que poderiam levar a novas coletas de dados e experimentos.
+
+
 ## Diretório de Trabalho 
 
 Primeiro Passo é definir o diretório de trabalho no R
@@ -64,6 +78,22 @@ datatable(mercado,
 ```
 
 
+## Identificar os Tipos de Variáveis
+
+Utilizamos a função **diagnose()**, do **paocte dlookr** na linguagem R, para identificar os tipos de variáveis para análise.
+
+A função diagnose() da biblioteca dlookr que retorna por variável qual o tipo dela, contagem de valores faltantes, frequência de faltantes em relação à base toda.
+
+
+
+
+
+```{r dlookr1, message=FALSE, warning=FALSE}
+
+library(dlookr)
+
+mercado %>% dlookr::diagnose()
+```
 
 
 
@@ -112,7 +142,6 @@ summary(mercado2$SALARIO)
 ```
 
 
-
 ### Interpretação p/ Salário
 
 * o 1º quartil(1 st Qu.) indica que 25% dos funcionários têm renda salarial menor ou igual a R$ 4.894 e o 3º quartil(3 rd Qu.) indica que 75% têm renda menor ou igual a R$ 6.306.
@@ -128,18 +157,57 @@ summary(mercado2$SALARIO)
 :::
 
 
-## Análise Bivariada
+## Análise Geral
+
+O **pacote skimr** é um função que nos fornece medidas resumo de variáveis de uma base de dados de interesse. Ele pode ser visto como uma alternativa mais completa para a função **summary()** do R Base para gerar uma tabela geral sobre a base de dados, fornecendo um primeiro olhar sobre o fenômeno estudado.
+
+
+
+```{r skim1, message=FALSE, warning=FALSE}
+library(skimr)
+
+mercado |> skim()
+
+```
+
+
+
+
+Veja que a saída da função skim mostra uma visão geral da base de dados, nos dando informações como número de linhas, número de colunas, e os tipos das colunas
+
+Ela fornece também informações individuais sobre cada coluna da base, separando as colunas por tipo: cada tipo nos dá um conjunto diferente de estatísticas, que façam sentido para aquele tipo de dado.
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+
 
 Conhecer como as variáveis se relacionam também é um passo muito importante antes da elaboração de um modelo quantitativo.
 
 
 ```{r box1, message=FALSE, warning=FALSE}
 
+library(magrittr)
+library(dplyr)
+
 nf = layout(mat = matrix(c(1,2),2,1, byrow = TRUE), height = c(1,2))
+
 par(mar = c(4.1, 3.1, 1.1, 2.1))
 
-boxplot(mercado$SALARIO, horizontal = TRUE)
-hist(mercado$SALARIO, main = "Salário Médio")
+boxplot(mercado$SALARIO,
+        col = "Red",
+        border = "Black",
+        horizontal = TRUE,
+        notch = TRUE)
+hist(mercado$SALARIO, 
+     col = "blue",
+     freq = TRUE,
+     main = "Histograma com BoxPlot",
+     xlab = "R$ Salário",
+     ylab = "Frequência")
 
 ```
 
@@ -147,13 +215,20 @@ hist(mercado$SALARIO, main = "Salário Médio")
 
 
 ```{r box2, message=FALSE, warning=FALSE}
+library(magrittr)
+library(dplyr)
 
 nf = layout(mat = matrix(c(1,2),2,1, byrow = TRUE),height = c(1,2))
 
 par(mar = c(4.1, 3.1, 1.1, 2.1))
 
 boxplot(mercado$IDADE, horizontal = TRUE)
-hist(mercado$IDADE, main = "Idade Médio")
+hist(mercado$IDADE, 
+     col = "blue",
+     freq = TRUE,
+     main = "Histograma com BoxPlot",
+     xlab = "Idade (anos)",
+     ylab = "Frequência")
 
 ```
 
@@ -178,6 +253,9 @@ A função **pairs.panels()** do **pacote psych** no R gera um figura com os gr�
 
 library(psych)
 pairs.panels(mercado,
+             method = "pearson",
+             density = TRUE,  
+             ellipses = TRUE,
              smoother = TRUE)
 
 ```

@@ -1,0 +1,285 @@
+```{=html}
+<style>
+  body{text-align: justify}
+</style>
+```
+
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+  
+  
+# Análise Exploratória de Dados (EDA)
+
+::: {.callout-note icon=false}
+
+## Mini Roteiro: AED
+
+Um Mini Roteiro para Realizar uma Análise Exploratória de Dados usando a Linguagem de Programação $R_{4.3}$ com auxílio da IDE RStudio.
+
+:::
+
+
+
+Em estatística, a análise exploratória de dados (AED) é uma abordagem à análise de conjuntos de dados de modo a resumir suas características principais, frequentemente com métodos visuais. Um modelo estatístico pode ou não ser usado, mas primariamente a AED tem como objetivo observar o que os dados podem nos dizer além da modelagem formal ou do processo de teste de hipóteses. A análise exploratória de dados foi promovida pelo estatístico norte-americano **John Tukey**, que incentivava os estatísticos a explorar os dados e possivelmente formular hipóteses que poderiam levar a novas coletas de dados e experimentos.
+
+
+## Diretório de Trabalho 
+
+Primeiro Passo é definir o diretório de trabalho no R
+
+
+
+```{r diretorio, message=FALSE, warning=FALSE}
+
+setwd('C:/Users/mario Dhiego/Documents/Modelo_Regresao1/Modelo_Regresao1')
+
+```
+
+
+
+## Carregar Dataset
+
+Segundo Passo é carregar a base de dados, chamada de mercado. Para isso é necessário instalar o pacote para leitura de arquivo com extensão do tipo excel(.xlsx) por meio do comando **install.packages("readxl")**.
+
+Posteriormente, ativar o pacote no R com o comando **library(readxl)**. Tendo um detalhe fundamental, que se instala somente um vez o pacote, e se ativa toda vez que for usar.
+
+
+
+```{r base1, message=FALSE, warning=FALSE}
+library(readxl)
+
+mercado <- read_excel('mercado.xlsx')
+mercado2 <- read_excel('mercado2.xlsx')
+```
+
+
+
+A importância da apresentação dos dados é fundamental no início da faxina dos dados. 
+
+Para a apresentação dos dataset contamos com alguns pacotes na linguagem R que possibilitam a apresentação de tabelas de maneira bastante satisfatória (de forma elegante e até interativa).
+
+O **pacote DT** é uma excelente opção quando se trata de uma apresentação rápida, geral e dinâmica sobre a base de dados.
+
+O pacote DT fornece uma interface R para a biblioteca JavaScript **DataTables**. Objetos de dados R (matrizes ou quadros de dados) podem ser exibidos como tabelas em páginas HTML, e DataTables fornece filtragem, paginação, classificação e muitos outros recursos nas tabelas.
+
+
+Segue a base de dados (n=80) referentes as características dos Funcionários que trabalham no Supermercado Formosa, na cidade de Belém, Estado do Pará, em 2023.
+
+
+
+
+```{r dataset1}
+
+library(DT)
+
+datatable(mercado,
+          class = 'cell-border stripe',
+          editable = 'cell',
+          caption = 'Tabela 01: Banco de Dados sobre Funcionários do Supermercado Formosa, Belém - Pará, 2023.')
+```
+
+
+
+## Identificar os Tipos de Variáveis
+
+Utilizamos a função **diagnose()**, do **paocte dlookr** na linguagem R, para identificar os tipos de variáveis para análise.
+
+A função diagnose() da biblioteca dlookr que retorna por variável qual o tipo dela, contagem de valores faltantes, frequência de faltantes em relação à base toda.
+
+
+
+
+
+
+```{r dlookr1, message=FALSE, warning=FALSE}
+
+library(dlookr)
+
+mercado %>% dlookr::diagnose()
+```
+
+
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+
+## Variáveis Qualitativas
+### Tabelas de Frequência: Simples
+
+
+```{r tab1, message=FALSE, warning=FALSE}
+
+table(mercado2$CARGO)
+table(mercado2$EDUCAÇÃO)
+table(mercado2$LOCAL)
+```
+
+
+
+### Tabelas de Frequência: Proporção
+
+
+```{r tab2, message=FALSE, warning=FALSE}
+
+prop.table(table(mercado2$CARGO))*100
+prop.table(table(mercado2$EDUCAÇÃO))*100
+prop.table(table(mercado2$LOCAL))*100
+```
+
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+## Variáveis Quantitativas
+### Medidas Resumo Geral
+
+
+
+```{r medida1, message=FALSE, warning=FALSE}
+
+summary(mercado2$IDADE)
+summary(mercado2$TEMPOCASA)
+summary(mercado2$SALARIO)
+
+```
+
+
+
+### Interpretação p/ Salário
+
+* o 1º quartil(1 st Qu.) indica que 25% dos funcionários têm renda salarial menor ou igual a R$ 4.894 e o 3º quartil(3 rd Qu.) indica que 75% têm renda menor ou igual a R$ 6.306.
+
+* Estes dois valores indicam que 50% dos funcionários tem renda nesse intervalo, o que já nos dá uma idéia de variabilidade da Renda.
+
+* Quanto maior a diferença entre o 3º e o 1º quartil, maior a dispersão da variável.
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+
+## Análise Geral
+
+O **pacote skimr** é um função que nos fornece medidas resumo de variáveis de uma base de dados de interesse. Ele pode ser visto como uma alternativa mais completa para a função **summary()** do R Base para gerar uma tabela geral sobre a base de dados, fornecendo um primeiro olhar sobre o fenômeno estudado.
+
+
+
+
+```{r skim1, message=FALSE, warning=FALSE}
+library(skimr)
+
+mercado |> skim()
+
+```
+
+
+
+
+
+Veja que a saída da função skim mostra uma visão geral da base de dados, nos dando informações como número de linhas, número de colunas, e os tipos das colunas
+
+Ela fornece também informações individuais sobre cada coluna da base, separando as colunas por tipo: cada tipo nos dá um conjunto diferente de estatísticas, que façam sentido para aquele tipo de dado.
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+
+
+Conhecer como as variáveis se relacionam também é um passo muito importante antes da elaboração de um modelo quantitativo.
+
+
+
+```{r box1, message=FALSE, warning=FALSE}
+
+library(magrittr)
+library(dplyr)
+
+nf = layout(mat = matrix(c(1,2),2,1, byrow = TRUE), height = c(1,2))
+
+par(mar = c(4.1, 3.1, 1.1, 2.1))
+
+boxplot(mercado$SALARIO,
+        col = "Red",
+        border = "Black",
+        horizontal = TRUE,
+        notch = TRUE)
+hist(mercado$SALARIO, 
+     col = "blue",
+     freq = TRUE,
+     main = "Histograma com BoxPlot",
+     xlab = "R$ Salário",
+     ylab = "Frequência")
+
+```
+
+```{r box2, message=FALSE, warning=FALSE}
+library(magrittr)
+library(dplyr)
+
+nf = layout(mat = matrix(c(1,2),2,1, byrow = TRUE),height = c(1,2))
+
+par(mar = c(4.1, 3.1, 1.1, 2.1))
+
+boxplot(mercado$IDADE, horizontal = TRUE)
+hist(mercado$IDADE, 
+     col = "blue",
+     freq = TRUE,
+     main = "Histograma com BoxPlot",
+     xlab = "Idade (anos)",
+     ylab = "Frequência")
+
+```
+
+
+
+
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+
+### Relação Gráfica: Variáveis Quantitativas
+
+
+A função **pairs.panels()** do **pacote psych** no R gera um figura com os gráficos de dispersão 2 a 2, os histogramas de cada variável e as correlações das variaveis 2 a 2.
+
+
+
+
+```{r corr1, message=FALSE, warning=FALSE}
+
+library(psych)
+pairs.panels(mercado,
+             method = "pearson",
+             density = TRUE,  
+             ellipses = TRUE,
+             smoother = TRUE)
+
+```
+
+
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::

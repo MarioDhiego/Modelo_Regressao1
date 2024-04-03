@@ -73,7 +73,7 @@ library(readxl)
 mercado <- read_excel('mercado.xlsx')
 
 Plot2 <- ggplot(mercado, aes(x=IDADE, y= SALARIO))+
-  geom_point(size = 3.5, 
+  geom_point(size = 2.5, 
              pch = 21, 
              col = 'black',
              fill = 'red')+
@@ -109,7 +109,7 @@ O script utilizado para gerar o gráfico de dispersão no R sem a observação 6
 :::
 
 
-### Gráfico de Dispersão sem Outlier 69º
+### Gráfico de Dispersão Sem obs: 69º
 
 
 ```{r Dispersao2, message=FALSE, warning=FALSE}
@@ -121,7 +121,7 @@ library(readxl)
 mercado2 <- read_excel('mercado2.xlsx')
 
 Plot3 <- ggplot(mercado2, aes(x=IDADE, y= SALARIO))+
-  geom_point(size = 3.5, 
+  geom_point(size = 2.5, 
              pch = 21, 
              col = 'black',
              fill = 'red')+
@@ -181,20 +181,6 @@ summary(Modelo1)
 
 
 Uma das tarefas mais corriqueiras dos analista de dados é a produção de tabelas. Seja para apresentar frequências, estatísticas descritivas (media, mediana, moda, etc), seja para apresentar resultados de modelos de regressão.
-
-
-```{r}
-library(stargazer)
-library(kableExtra)
-library(skimr)
-
-mercado2 |> skim()
-
-```
-
-
-
-
 
 
 
@@ -384,6 +370,7 @@ AIC(Modelo1,Modelo2, Modelo3, Modelo4)
 BIC(Modelo1,Modelo2, Modelo3, Modelo4)
 
 ```
+
 
 
 

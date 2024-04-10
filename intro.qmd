@@ -13,7 +13,6 @@
 
 
 # Regressão Linear 
-
 ## Modelo de Regressão Simples
 
 A Técnica de **Regressão Linear** é uma das mais conhecida e utilizadas na Estatística. È a porta de entrada para diversos modelos preditivos mais sofisticados, já que muitos destes usam conceitos também utilizados na regressão linear. Essencialmente, a regressão linear pode ser utilizada para prever o valor de uma variável quantitativa (**dependente**) em função das outras variáveis (**independentes ou preditoras**).
@@ -48,9 +47,6 @@ $$ E(Salário) = \beta_{0} + \beta_{1} * Idade$$
 
 
 $\beta_{0} + \beta_{1}$ são parâmetros do modelo e podem ser estimados a partir dos dados da amostra. NO exemplo , usaremos os dados amostrais para estimar esses parâmetros. o Primeiro passo e construir um gráfico de dispersão em que colocamos a idade no eixo x e o salário no eixo y. 
-
-
-
 
 
 ::: progress
@@ -139,11 +135,11 @@ ggplotly(Plot3)
 
 O gráfico mostra que há uma tendência de crescimento do salário quando a idade aumenta, ilustrado pela reta inclinada, que chamaremos de reta de mínimos quadrados.
 
-
 ::: progress
 ::: {.progress-bar style="width: 100%;"}
 :::
 :::
+
 
 ## Reta de Mínimos Quadrados
 
@@ -166,10 +162,10 @@ em que $e_{i}$ é o resíduo da observação "i".
 :::
 :::
 
+
 ## Coeficiente de Regressão Linear
 
 Para fazer uma análise de regressão no R, usaremos a função *lm*, do **pacote basic**, e os dados do Supermercado Formosa. A sintaxe para rodar a regressão linear simples é **lm(y~x)**.
-
 
 
 ```{r model1, message=FALSE, warning=FALSE}
@@ -183,10 +179,10 @@ summary(Modelo1)
 Uma das tarefas mais corriqueiras dos analista de dados é a produção de tabelas. Seja para apresentar frequências, estatísticas descritivas (media, mediana, moda, etc), seja para apresentar resultados de modelos de regressão.
 
 
-
 Na saída acima podemos ver os estimadores $\hat{\beta_{0}}$ e $\hat{\beta_{1}}$ (estimate), seus erros padrão (Std. Error), a estatística t (t value) e o valor-p do teste de hipótese (Pr(>|t|)).
 
 Os etimadores $\hat{\beta_{0}}$ e $\hat{\beta_{1}}$ possuem um erro padrão que depende de vários fatores, entre eles o tamanho da amostra e o desvio-padrão do erro do modelo. Com esses valores podemos construir uma estimativa intervalar, com determinado nível de confiança, para os parâmetros populacionais desconhecidos $\beta_{0}$ e $\beta_{1}$.
+
 
 ```{r model2, message=FALSE, warning=FALSE}
 
@@ -253,8 +249,8 @@ O script a seguir cria os gráficos para regressão linear simples com n=80.
 
 par(mfrow=c(2,2))
 plot(Modelo1)
-
 ```
+
 
 O primeiro gráfico é chamado de (**Residuals vs Fitted**) mostra que a observação 69 tem um resíduo extremamente alto, considerando um outlier da regressão.
 
@@ -269,16 +265,39 @@ A distância de Cook mede o quanto determinada observação influência o result
 
 Pontos acima da linha tracejada inferior são considerados influentes, caso da observação 69.
 
-
 O script a seguir cria os gráficos para regressão linear simples com n=79, ou seja sem a observação 69, coniderada um outlier.
-
 
 
 ```{r residuo2, message=FALSE, warning=FALSE}
 
 par(mfrow=c(2,2))
 plot(Modelo2)
+```
 
+
+## Normalidade dos Resíduos
+
+```{r normalidade1, message=FALSE, warning=FALSE}
+
+shapiro.test(Modelo2$residuals)
+```
+
+
+## Independência dos Resíduos
+
+```{r independencia1, message=FALSE, warning=FALSE}
+library(car)  
+
+durbinWatsonTest(Modelo2)
+```
+
+
+## Homocedasticidade dos Resíduos (Breusch-Pagan)
+
+```{r homocedas1, message=FALSE, warning=FALSE}
+library(lmtest)  
+
+bptest(Modelo2)
 ```
 
 

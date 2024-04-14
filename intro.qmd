@@ -1,3 +1,4 @@
+
 ```{=html}
 <style>
   body{text-align: justify}
@@ -11,9 +12,8 @@
 :::
 
 
-
-# Regressão Linear 
-## Modelo de Regressão Simples
+# Modelo de Regressão Linear 
+## Regressão Simples
 
 A Técnica de **Regressão Linear** é uma das mais conhecida e utilizadas na Estatística. È a porta de entrada para diversos modelos preditivos mais sofisticados, já que muitos destes usam conceitos também utilizados na regressão linear. Essencialmente, a regressão linear pode ser utilizada para prever o valor de uma variável quantitativa (**dependente**) em função das outras variáveis (**independentes ou preditoras**).
 
@@ -34,7 +34,6 @@ Para ilustrar a regressão simples, vamos começar com um exemplo em que queremo
 * SALARIO : Salário Mensal do Funcionário em R\$
 
 Para ilustrar a regressão simples, vamos começar com um exemplo em que queremos estudar a relação entre idade (**variável preditora $X_{1}$**) e Salário (**variável dependente Y**) com uma amostra de 80 funcionários do Supermercadp Formosa.
-
 
 Vamos assumir que o salário varia linearmente conforme a idade. Matematicamente, diremos que o salário é uma função linear da idade: salário = $Salário \ = \ \beta_{0}+\beta_{1}*Idade$. Entretanto, sabemos que esta relação não é determinística, isto é, não necessariamente a diferença salarial entre uma pessoa com 30 anos e outra com 31 será $\beta_{1}$. Isso ocorre porque há outros fatores que interferem no salário e não estão incluídos no modelo. Este ruído será representado por um termo de erro do modelo:
 
@@ -157,26 +156,24 @@ $$ SQR = min \sum_{i=1}^{n} (y_{i}-\hat{y}_{i})^{2} = min \sum_{i=1}^{n} e_{i}^{
 em que $e_{i}$ é o resíduo da observação "i".
 
 
-::: progress
-::: {.progress-bar style="width: 100%;"}
-:::
-:::
-
 
 ## Coeficiente de Regressão Linear
 
 Para fazer uma análise de regressão no R, usaremos a função *lm*, do **pacote basic**, e os dados do Supermercado Formosa. A sintaxe para rodar a regressão linear simples é **lm(y~x)**.
 
 
+### Tabela de Resultado Padrão
+
+Uma das tarefas mais corriqueiras dos analista de dados é a produção de tabelas. Seja para apresentar frequências, estatísticas descritivas (media, mediana, moda, etc), seja para apresentar resultados de modelos de regressão.
+
+Tabela de resultados referente ao modelo de regressão linear simples com n=80.
+
+
 ```{r model1, message=FALSE, warning=FALSE}
 
 Modelo1 = lm(mercado$SALARIO~mercado$IDADE)
 summary(Modelo1)
-
 ```
-
-
-Uma das tarefas mais corriqueiras dos analista de dados é a produção de tabelas. Seja para apresentar frequências, estatísticas descritivas (media, mediana, moda, etc), seja para apresentar resultados de modelos de regressão.
 
 
 Na saída acima podemos ver os estimadores $\hat{\beta_{0}}$ e $\hat{\beta_{1}}$ (estimate), seus erros padrão (Std. Error), a estatística t (t value) e o valor-p do teste de hipótese (Pr(>|t|)).
@@ -188,21 +185,10 @@ Os etimadores $\hat{\beta_{0}}$ e $\hat{\beta_{1}}$ possuem um erro padrão que 
 
 Modelo2 = lm(mercado2$SALARIO~mercado2$IDADE)
 summary(Modelo2)
-
 ```
 
 
 A presença desse outlier tem consequências importantes para o resultado da regressão. Os valores de $\hat{\beta}_{0}$ e $\hat{\beta}_{1}$ mudam de (1818,11; 79,59) para (2165,81; 71,08), respectivamente, o que faz com que os valores previstos também mudem, especialmente nos extremos, isto é, para idades muito baixas e muito altas. Isso significa que esse ponto, além de **outlier**, é um **ponto influente**, isto é, a presença dele muda as estimativas do modelo. 
-
-
-
-Na linguagem R, para obter o intervalo de 95\% de confiança para a inclinação da reta, utiliza-se o script:
-
-
-```{r message=FALSE, warning=FALSE}
-confint(Modelo1, "IDADE", level = 0.95)
-```
-
 
 ::: progress
 ::: {.progress-bar style="width: 100%;"}
@@ -210,24 +196,33 @@ confint(Modelo1, "IDADE", level = 0.95)
 :::
 
 
-## Previsão
+### Tabela de Resultados Personalizada
 
-Para fazer a previsão do salário usando a linguagem R, pode-se utilizar a função **predict**. Por exemplo, que estamos interessados prever o salário de um funcionário de 40 anos e outro de 50 anos. 
+O **pacote gtsummary** fornece uma maneira simples e sofisticada de criar tabelas para apresentar os resultados de modelos de regressão no R. A função **tbl_regression()** pega um objeto de modelo de regressão em R e retorna uma tabela formatada de resultados do modelo de regressão que está pronta para publicação.
 
-O script no R é dado a seguir: 
+Tabela de resultados referentes ao modelo de regressão liear simples sem a observação 69.
 
 
-```{r previsao1, message=FALSE, warning=FALSE}
-NovaIdade = data.frame(IDADE = c(40,50))
 
-predict(Modelo1, 
-        newdata = NovaIdade, 
-        interval = "prediction"
-        )
+```{r tabreg1, message=FALSE, warning=FALSE}
+library(magrittr)
+library(dplyr)
+library(gtsummary)
+
+Modelo2 = lm(mercado2$SALARIO~mercado2$IDADE) 
+
+Modelo2 %>%
+tbl_regression() %>%
+  add_global_p() %>%
+  bold_p(t = 0.05) %>%
+  bold_labels() %>%
+  italicize_levels() %>% 
+  modify_header(label = "**VARIAVEIS**") %>%
+  modify_caption("**Tabela 01. Modelo de Regressao Simples do Salário em função da Idade, Formosa - 2023.**")
 ```
 
 
-Pode-se concluir, que um funcionário de 40 anos terá um salário entre **R$ ** e  **R$ ** com 95\% de probabilidade.
+
 
 
 ::: progress
@@ -265,7 +260,7 @@ A distância de Cook mede o quanto determinada observação influência o result
 
 Pontos acima da linha tracejada inferior são considerados influentes, caso da observação 69.
 
-O script a seguir cria os gráficos para regressão linear simples com n=79, ou seja sem a observação 69, coniderada um outlier.
+O script a seguir cria os gráficos para regressão linear simples com n=79, ou seja, sem a observação 69, considerada um outlier.
 
 
 ```{r residuo2, message=FALSE, warning=FALSE}
@@ -273,6 +268,12 @@ O script a seguir cria os gráficos para regressão linear simples com n=79, ou 
 par(mfrow=c(2,2))
 plot(Modelo2)
 ```
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
 
 
 ## Normalidade dos Resíduos
@@ -283,6 +284,11 @@ shapiro.test(Modelo2$residuals)
 ```
 
 
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
 ## Independência dos Resíduos
 
 ```{r independencia1, message=FALSE, warning=FALSE}
@@ -291,6 +297,11 @@ library(car)
 durbinWatsonTest(Modelo2)
 ```
 
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
 
 ## Homocedasticidade dos Resíduos (Breusch-Pagan)
 
@@ -308,7 +319,34 @@ bptest(Modelo2)
 
 
 
-## Modelo de Regressão Múltipla
+## Previsão
+
+Para fazer a previsão do salário usando a linguagem R, pode-se utilizar a função **predict**. Por exemplo, que estamos interessados prever o salário de um funcionário de 40 anos e outro de 50 anos. 
+
+O script no R é dado a seguir: 
+
+
+```{r previsao1, message=FALSE, warning=FALSE}
+NovaIdade = data.frame(IDADE = c(40,50))
+
+predict(Modelo1, 
+        newdata = NovaIdade, 
+        interval = "prediction"
+        )
+```
+
+
+Pode-se concluir, que um funcionário de 40 anos terá um salário entre **R$ ** e  **R$ ** com 95\% de probabilidade.
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+
+
+## Regressão Múltipla
 
 Geralmente os modelos de regressão linear simples possuem alto erro padrão e baixo $R^{2}$. Isso porque a variável Y(salário) é explicada por diversos fatores, não só pela idade do funcionário. Portanto, seria interessante utilizar mais de uma variável preditora no modelo para prever o salário com maior precisão.
 
@@ -335,11 +373,12 @@ A função utilizada para rodar a regressão múltipla é a mesma que usamos par
 
 Modelo3 = lm(mercado2$SALARIO~mercado2$EDUCAÇÃO+mercado2$CARGO+mercado2$LOCAL+mercado2$IDADE+mercado2$TEMPOCASA)
 summary(Modelo3)
-
 ```
 
-
 Note que a saída do R para regressão múltipla é bem similar à da simples, A diferença é que agora há várias linhas, uma para cada variável independente, com suas estimativas, erros padrão, estatística t e valor-p.
+
+
+
 
 ## Interpretação dos Coeficientes
 
@@ -358,6 +397,28 @@ O quinto coeficiente, relativo a **Idade**, mostra que o salário médio tem um 
 O sexto coeficiente, relativo ao **Tempo de Casa**, indica que a cada ano dicional do funcionário no supermercado há um amento estimado no salário de 75,007 reais. Neste caso, conclui-se também que há evidências de que o coeficiente relativo ao tempo de casa na população $\beta_{6}$, é diferente de zero, pois valor-p < 0.0001.
 
 
+```{r tabreg2, message=FALSE, warning=FALSE}
+library(magrittr)
+library(dplyr)
+library(gtsummary)
+
+Modelo3 = lm(mercado2$SALARIO~mercado2$EDUCAÇÃO+mercado2$CARGO+mercado2$LOCAL+mercado2$IDADE+mercado2$TEMPOCASA)
+
+Modelo3 %>%
+tbl_regression(intercept = TRUE,
+               conf.level = NULL) %>%
+  modify_header(label = "**VARIAVEIS**") %>%
+  modify_caption("**Tabela 01. Modelo de Regressao de Salário e Idade**") %>%
+  add_n() %>%
+  add_global_p() %>%
+  bold_p(t = 0.05) %>%
+  bold_labels() %>%
+  italicize_levels() %>%
+  add_vif(c("aGVIF", "df"))
+```
+
+
+
 ::: progress
 ::: {.progress-bar style="width: 100%;"}
 :::
@@ -371,29 +432,47 @@ Com base no modelo anterior, verificou-se que, as variáveis: Nível Educacional
 Note que o modelo final não fica guardado em nenhum objeto no R. È preciso rodar novamente apenas as variáveis selecionadas.
 
 
-
 ```{r model4, message=FALSE, warning=FALSE}
 
 Modelo4 = lm(mercado2$SALARIO~+mercado2$CARGO+mercado2$IDADE+mercado2$TEMPOCASA)
 summary(Modelo4)
+```
+
+
+Pode-se viasualizar os resultados do modelo final de forma gráfica.
+
+
+```{r plotreg1, message=FALSE, warning=FALSE}
+library(GGally)
+
+ggcoef(Modelo4,
+       exclude_intercept = FALSE,
+       vline_color = "red",
+       vline_linetype = "solid",
+       errorbar_color = "blue",
+       errorbar_height = 0.5,
+       size = 5, 
+       shape = 18)
 
 ```
 
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
 
 ## Comparação dos Modelos
 
 ```{r AIC, message=FALSE, warning=FALSE}
+library(car)
 
 AIC(Modelo1,Modelo2, Modelo3, Modelo4)
-
 BIC(Modelo1,Modelo2, Modelo3, Modelo4)
 
+
 ```
-
-
-
-
-
 
 
 ::: progress
@@ -421,9 +500,6 @@ $$ VIF =  \frac{1}{Tolerância} = \frac{1}{1- R^{2}_{j}}$$
 
 
 
-
-
-
 O cálculo do VIF na linguagem R pode ser feito utilizando o **pacote car**.
 
 
@@ -445,5 +521,45 @@ Vinhos que nenhuma variável possui VIF (ou GVIF) maior que 5, portanto, não te
 :::
 :::
 
+
+
+## Machine Learning no R
+### Separando a Base em Treino e Teste
+
+Na maioria das vezes, quando existe um conjunto de dados para utilizar na construção de um modelo, precisa-se fazer uma separação entre o que chamamos de **treino** e **teste**. O que costuma-se chamar de base treino, é o conjunto de dados que utilizaremos na construção do modelo.
+
+Porém, para sabermos se o modelo não tem problemas como **overfitting**, precisamos testar o que foi rodado com a base treino, utilizando o que costumamos chamar de base teste.
+
+No R, fazer essa separação é muito simples. Principalmente quando utilizamos o **pacote caret**, provavelmente o mais utilizado em modelagem estatística.
+
+
+```{r sepBase1, message=FALSE, warning=FALSE}
+library(caret)
+library(recipes)
+
+
+Base_Treino <- createDataPartition(mercado$SALARIO, 
+                                   p = 0.8, 
+                                   list = FALSE)
+Treino <- mercado[Base_Treino,]
+Teste <- mercado[-Base_Treino,]
+
+Modelo_Final <- lm(mercado$SALARIO~+
+                  mercado$CARGO+
+                  mercado$IDADE+
+                  mercado$TEMPOCASA, data = Treino)
+
+summary(Modelo_Final)
+
+plot(Modelo_Final)
+
+```
+
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
 
 

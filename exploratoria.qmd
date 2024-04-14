@@ -1,12 +1,16 @@
+
 ```{=html}
 <style>
   body{text-align: justify}
 </style>
 ```
+
+
 ::: progress
 ::: {.progress-bar style="width: 100%;"}
 :::
 :::
+
 
 # Análise Exploratória de Dados (EDA)
 
@@ -25,6 +29,10 @@ A análise exploratória de dados foi promovida pelo estatístico norte-american
 
 
 
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
 
 ## Diretório de Trabalho
 
@@ -35,6 +43,12 @@ Primeiro Passo é definir o diretório de trabalho no R
 setwd('C:/Users/mario Dhiego/Documents/Modelo_Regresao1/Modelo_Regresao1')
 
 ```
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
 
 ## Carregar Dataset
 
@@ -68,6 +82,14 @@ datatable(mercado,
           editable = 'cell',
           caption = 'Tabela 01: Banco de Dados sobre Funcionários do Supermercado Formosa, Belém - Pará, 2023.')
 ```
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+
 
 ## Identificar os Tipos de Variáveis
 
@@ -109,6 +131,37 @@ prop.table(table(mercado2$LOCAL))*100
 ```
 
 
+### Tabelas de Contigência
+
+O **pacote gtsummary** fornece uma maneira elegante e flexível de criar tabelas analíticas e de resumo prontas para publicação usando a linguagem de programação R.
+
+A função **tbl_summary()** calcula estatísticas descritivas para variáveis contínuas, categóricas e dicotômicas em R e apresenta os resultados em uma tabela de resumo bonita e personalizável, pronta para publicação.
+
+
+
+```{r contigencia1, message=FALSE, warning=FALSE}
+library(dplyr)
+library(gtsummary)
+
+mercado %>% 
+  select( 
+    LOCAL,
+    CARGO,
+    IDADE,
+    TEMPOCASA,
+    EDUCAÇÃO,
+    SALARIO) %>% 
+  tbl_summary(by = LOCAL,
+              statistic = list(all_continuous() ~ "{mean} ({sd})")) %>%
+  modify_header(label = "**VARIAVEIS**") %>%
+  modify_caption("Tabela 01. Característica Salariais Formosa") %>%
+  add_n() %>%
+  add_difference() %>%
+  bold_p(t = 0.05) %>%
+  bold_labels() %>%
+  italicize_levels()
+```
+
 
 
 ::: progress
@@ -141,8 +194,6 @@ summary(mercado2$SALARIO)
 -   Quanto maior a diferença entre o 3º e o 1º quartil, maior a dispersão da variável.
 
 
-
-
 ::: progress
 ::: {.progress-bar style="width: 100%;"}
 :::
@@ -168,8 +219,8 @@ Ela fornece também informações individuais sobre cada coluna da base, separan
 :::
 :::
 
-
-### Histograma com Boxplot
+### Relação Gráfica: Variáveis Quantitativas
+#### Histograma com Boxplot
 
 Conhecer como as variáveis se relacionam também é um passo muito importante antes da elaboração de um modelo quantitativo.
 
@@ -225,7 +276,7 @@ hist(mercado$IDADE,
 :::
 :::
 
-### Relação Gráfica: Variáveis Quantitativas
+
 #### Diagrama de Ramos-e-folhas
 
 Vamos investigar como está o comportamento das variáveis através de uma ferramenta chama **diagrama de ramos e folhas**. Para isso vamos usar o comando abaixo:
@@ -235,6 +286,12 @@ Vamos investigar como está o comportamento das variáveis através de uma ferra
 stem(mercado2$IDADE)
 stem(mercado2$SALARIO)
 ```
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
 
 
 #### Diagrama de Dispersão

@@ -18,7 +18,7 @@
 A Técnica de **Regressão Linear** é uma das mais conhecida e utilizadas na Estatística. È a porta de entrada para diversos modelos preditivos mais sofisticados, já que muitos destes usam conceitos também utilizados na regressão linear. Essencialmente, a regressão linear pode ser utilizada para prever o valor de uma variável quantitativa (**dependente**) em função das outras variáveis (**independentes ou preditoras**).
 
 
-## Dataset
+## Data Set
 
 Para ilustrar a regressão simples, vamos começar com um exemplo em que queremos estudar a relação entre idade (**variável preditora $X_{1}$**) e Salário (**variável dependente Y**) com uma amostra de 80 funcionários do Supermercadp Formosa.
 
@@ -32,6 +32,7 @@ Para ilustrar a regressão simples, vamos começar com um exemplo em que queremo
 * IDADE : Idade em anos Completos do Funcionário
 * TEMPOCASA : Tempo de Casa
 * SALARIO : Salário Mensal do Funcionário em R\$
+
 
 Para ilustrar a regressão simples, vamos começar com um exemplo em que queremos estudar a relação entre idade (**variável preditora $X_{1}$**) e Salário (**variável dependente Y**) com uma amostra de 80 funcionários do Supermercadp Formosa.
 
@@ -319,7 +320,7 @@ bptest(Modelo2)
 
 
 
-## Previsão
+## Previsão Simples
 
 Para fazer a previsão do salário usando a linguagem R, pode-se utilizar a função **predict**. Por exemplo, que estamos interessados prever o salário de um funcionário de 40 anos e outro de 50 anos. 
 
@@ -327,12 +328,11 @@ O script no R é dado a seguir:
 
 
 ```{r previsao1, message=FALSE, warning=FALSE}
-NovaIdade = data.frame(IDADE = c(40,50))
+Previsao1 = data.frame(IDADE = c(40,50))
 
 predict(Modelo1, 
-        newdata = NovaIdade, 
-        interval = "prediction"
-        )
+        newdata = Previsao1, 
+        interval = "prediction")
 ```
 
 
@@ -470,15 +470,10 @@ library(car)
 
 AIC(Modelo1,Modelo2, Modelo3, Modelo4)
 BIC(Modelo1,Modelo2, Modelo3, Modelo4)
-
-
 ```
 
 
-::: progress
-::: {.progress-bar style="width: 100%;"}
-:::
-:::
+
 
 ## Multicolinearidade
 
@@ -522,8 +517,48 @@ Vinhos que nenhuma variável possui VIF (ou GVIF) maior que 5, portanto, não te
 :::
 
 
+## Previsão Multipla
+
+Com todas as suposições do modelo satisfeita e com o modelo final selecionado, o próximo passo é fazer **Previsões**.
+
+Deve-se primeiro montar um dataframe com os valores das variáveis preditoras que utilizam para estimar os salários.
+
+Novamente usamos a função **predict** para prever um Salário de uma pessoa com 30 anos, 5 anos de casa e no Cargo de Diretor:
+
+
+```{r previsao2, message=FALSE, warning=FALSE}
+Previsao2 = data.frame(CARGO="DIRETOR",
+                       IDADE=30,
+                       TEMPODECASA=50)
+
+predict(Modelo4, 
+        newdata = Previsao2, 
+        interval = "prediction")
+```
+
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+
+
+
 
 ## Machine Learning no R
+
+Para avaliar a performance de um modelo de previsão ou classificação, quando for aplicado à população, não devemos utilizar a mesma amostra considerada para obtê-lo. Isso tende a fornecer resultados otimistas, camuflando inclusive a eventual ocorrência de overfitting. 
+
+Deve-se avaliar o modelo aplicando-o outra amostra dessa população, independente da amostra empregada para o desenvolvimento. 
+
+As métricas a serem consideradas para avaliação do modelo serão calculadas a partir dessa outra amostra.
+
+Em geral, selecionamos uma amostra da população e a dividirmos aleatoriamente em duas partes. Uma parte para desenvolvimento que se denomina **Amostra de Treinamento** ou aprendizado, e a outra denominada **Amostra Teste** para os teste do modelo obtido. 
+
+
+
 ### Separando a Base em Treino e Teste
 
 Na maioria das vezes, quando existe um conjunto de dados para utilizar na construção de um modelo, precisa-se fazer uma separação entre o que chamamos de **treino** e **teste**. O que costuma-se chamar de base treino, é o conjunto de dados que utilizaremos na construção do modelo.
@@ -550,10 +585,10 @@ Modelo_Final <- lm(mercado$SALARIO~+
                   mercado$TEMPOCASA, data = Treino)
 
 summary(Modelo_Final)
-
-plot(Modelo_Final)
-
 ```
+
+
+
 
 
 

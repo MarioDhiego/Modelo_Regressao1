@@ -219,7 +219,7 @@ tbl_regression() %>%
   bold_labels() %>%
   italicize_levels() %>% 
   modify_header(label = "**VARIAVEIS**") %>%
-  modify_caption("**Tabela 01. Modelo de Regressao Simples do Salário em função da Idade, Formosa - 2023.**")
+  modify_caption("Tabela 01. Modelo de Regressao Simples do Salário em função da Idade, Formosa - 2023.")
 ```
 
 
@@ -404,17 +404,7 @@ library(gtsummary)
 
 Modelo3 = lm(mercado2$SALARIO~mercado2$EDUCAÇÃO+mercado2$CARGO+mercado2$LOCAL+mercado2$IDADE+mercado2$TEMPOCASA)
 
-Modelo3 %>%
-tbl_regression(intercept = TRUE,
-               conf.level = NULL) %>%
-  modify_header(label = "**VARIAVEIS**") %>%
-  modify_caption("**Tabela 01. Modelo de Regressao de Salário e Idade**") %>%
-  add_n() %>%
-  add_global_p() %>%
-  bold_p(t = 0.05) %>%
-  bold_labels() %>%
-  italicize_levels() %>%
-  add_vif(c("aGVIF", "df"))
+
 ```
 
 

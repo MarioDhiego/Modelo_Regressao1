@@ -40,7 +40,7 @@ Primeiro Passo é definir o diretório de trabalho no R
 
 ```{r diretorio, message=FALSE, warning=FALSE}
 
-setwd('C:/Users/mario Dhiego/Documents/Modelo_Regresao1/Modelo_Regresao1')
+setwd('C:/Users/usuario/Documents/Modelo_Regressao')
 
 ```
 

@@ -1,5 +1,6 @@
 
 
+
 ```{=html}
 <style>
   body{text-align: justify}
@@ -14,7 +15,7 @@
 
 
   
-# Regressão Ridge
+# Modelo de Regressão Ridge
 
 A regressão de Cume, Cumeeira, em Crista ou chamada **Ridge Regression**, proposta por Hoerl e Kennard (1970a), é um dos vários métodos propostos para remediar os problemas de multicolinearidade, alterando o método de mínimos quadrados para permitir estimadores viesados dos coeficientes de regressão. 
 
@@ -57,6 +58,261 @@ Atualmente na literatura, existem várias medidas corretivas para suavizar os ef
 
 Para rodar a regressão Ridge na linguagem R, usaremos o **pacote glmnet**.
 
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+
+## Carregar Dataset2
+
+Segundo Passo é carregar a base de dados, chamada de Volume de Pinus. Para isso é necessário instalar o pacote para leitura de arquivo com extensão do tipo excel(.xlsx) por meio do comando **install.packages("readxl")**.
+
+Posteriormente, ativar o pacote no R com o comando **library(readxl)**. Tendo um detalhe fundamental, que se instala somente um vez o pacote, e se ativa toda vez que for usar.
+
+```{r base1, message=FALSE, warning=FALSE}
+library(readxl)
+
+dados <- read_excel("dados_pinus.xlsx")
+```
+
+
+### Variáveis
+
+Para ilustrar a regressão ridge, vamos começar com um exemplo em que queremos estudar a relação entre DAP (**variável preditora $X_{1}$**) e Volume (**variável dependente Y**) com uma amostra de 250 arvores.
+
+
+* Local: Empresa Duratex Florestal SP
+* Amostra: 20 arvores
+* IAF : Indice Aerea Foliar
+* DAF : Distribuição Angular da Folha
+* GAP : 
+* IDADE : Idade em Meses da arvore
+* DAP : Diâmetro a Altura do Peito (1.30 metros do solo)
+* ALTURA : Altura da arvore
+* ÁEREA BASAL : Area Basal da arvore
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+
+
+## Matriz de Correlação
+
+```{r corr1, message=FALSE, warning=FALSE}
+library(corrplot)
+
+correl <- cor(dados[, -1])
+corrplot(correl, 
+         method = "color",         # circle, number, shade
+         type = "upper",            # lower, full
+         #order = "hclust",
+         addCoef.col = "black",
+         tl.srt = 90,
+         diag = TRUE)
+ 
+
+```
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+
+## Matriz de Dispersão
+
+```{r dispersao1, message=FALSE, warning=FALSE}
+library(psych)
+library(GGally)
+
+pairs.panels(dados,
+             method = "pearson",
+             density = TRUE,  
+             ellipses = TRUE,
+             smoother = TRUE)
+```
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+
+## Regressão Linear
+
+Uma das tarefas mais corriqueiras dos analista de dados é a produção de tabelas. Seja para apresentar frequências, estatísticas descritivas (media, mediana, moda, etc), seja para apresentar resultados de modelos de regressão.
+
+Tabela de resultados referente ao modelo de regressão linear multiplo com n =250.
+
+
+```{r modelolinear1, message=FALSE, warning=FALSE}
+
+Modelo_mlm <- lm(VOLUME ~ ., data = dados)
+summary(Modelo_mlm)
+
+
+```
+
+
+### Fator de Inflanção da Variância (vIF)
+
+```{r vif1, message=FALSE, warning=FALSE}
+
+library(car)
+
+vif(Modelo_mlm)  
+
+```
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+## Modelo de Regressão Ridge Geral
+
+```{r modeloridge1, message=FALSE, warning=FALSE}
+library(caret)
+library(glmnet)
+
+#------------------ Modelo Ridge Completo ----------------------------#
+set.seed(123)
+train_index <- createDataPartition(dados$VOLUME, p = 0.9, list = FALSE)
+dados_treino <- dados[train_index, ]
+dados_teste <- dados[-train_index, ]
+
+x_train <- model.matrix(VOLUME ~ ., dados_treino)[, -1]  # Remove intercepto
+y_train <- dados_treino$VOLUME
+
+x_test <- model.matrix(VOLUME ~ ., dados_teste)[, -1]
+y_test <- dados_teste$VOLUME
+
+# Regressão Ridge (Ridge:alpha = 0; LASSO:alpha = 1)
+cv_ridge <- cv.glmnet(x_train, 
+                      y_train, 
+                      alpha = 0, 
+                      standardize = TRUE)
+
+# Melhor lambda
+best_lambda_ridge <- cv_ridge$lambda.min
+cat("Melhor lambda (Ridge):", best_lambda_ridge, "\n")
+
+
+modelo_ridge <- glmnet(x_train, 
+                       y_train,
+                       alpha = 0,
+                       lambda = best_lambda_ridge,
+                       standardize = TRUE)
+
+
+# Coeficientes do modelo final
+coef_ridge <- coef(modelo_ridge)
+print(coef_ridge)
+
+# Predição no conjunto de teste
+y_pred_ridge <- predict(modelo_ridge, s = best_lambda_ridge, newx = x_test)
+
+#------------------------------------------------------------------------------#
+# Medidas Performance
+
+R2_ridge <- cor(y_test, y_pred_ridge)^2
+rmse_ridge <- sqrt(mean((y_test - y_pred_ridge)^2))
+mae_ridge <- mean(abs(y_test - y_pred_ridge))
+mape_ridge <- mean(abs((y_test - y_pred_ridge) / y_test)) * 100
+
+
+# --- NOVAS MÉTRICAS: AIC e BIC ---
+# Predição nos dados de treino para obter o RSS
+y_pred_train_ridge <- predict(modelo_ridge, s = best_lambda_ridge, newx = x_train)
+RSS <- sum((y_train - y_pred_train_ridge)^2)
+
+# Extrair os graus de liberdade efetivos do modelo
+# O objeto glmnet já nos dá isso!
+df <- modelo_ridge$df[which(modelo_ridge$lambda == best_lambda_ridge)]
+
+# Número de observações no treino
+n <- nrow(dados_treino)
+
+# Cálculo do AIC e BIC
+AIC_ridge <- n * log(RSS/n) + 2 * (df + 1) # Adiciona 1 para o intercepto
+BIC_ridge <- n * log(RSS/n) + log(n) * (df + 1) # Adiciona 1 para o intercepto
+
+
+cat("\n--- Performance do Modelo Ridge ---\n")
+cat("R² =", R2_ridge, 
+    "\nRMSE =", rmse_ridge, 
+    "\nMAE =", mae_ridge, 
+    "\nMAPE =" , mape_ridge,
+    "\nAIC =", AIC_ridge,
+    "\nBIC =", BIC_ridge
+)
+#------------------------------------------------------------------------------#
+```
+
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+
+
+### Ridge Trace Plot
+
+```{r modeloridge2, message=FALSE, warning=FALSE}
+
+library(caret)
+library(glmnet)
+library(reshape2)
+
+modelo_ridge_seq <- glmnet(x_train, y_train, alpha = 0, standardize = TRUE)
+
+
+# Extrair os coeficientes do modelo Ridge
+coefs <- as.matrix(modelo_ridge_seq$beta)
+lambdas <- modelo_ridge_seq$lambda
+df_coef <- as.data.frame(t(coefs))
+df_coef$lambda <- log(lambdas)  # log(lambda)
+
+# Transformar para formato longo (long format)
+df_long <- melt(df_coef, id.vars = "lambda", 
+                variable.name = "Variavel", 
+                value.name = "Coeficiente")
+
+#Plot com ggplot2
+ggplot(df_long, aes(x = lambda, y = Coeficiente, color = Variavel)) +
+  geom_line(size = 1.2, alpha = 0.9) +  # Linhas suaves e grossas
+  geom_vline(xintercept = log(best_lambda_ridge), 
+             color = "red", linetype = "dashed", size = 1) +
+  labs(
+    title = "Ridge Trace Plot",
+    subtitle = "Modelo Ridge com Todas",
+    x = expression(log(lambda)),
+    y = "Coeficientes"
+  ) +
+  scale_color_brewer(palette = "Dark2") +  # Paleta de cores agradável
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold", size = 16),
+    plot.subtitle = element_text(size = 13, color = "gray40"),
+    legend.title = element_blank(),
+    legend.text = element_text(size = 10),
+    legend.position = "right",
+    panel.grid.minor = element_blank(),
+    panel.grid.major.y = element_line(color = "gray85")
+  )
+
+
+
+
+```
 
 
 

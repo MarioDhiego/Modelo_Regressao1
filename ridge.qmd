@@ -264,7 +264,7 @@ cat("R² =", R2_ridge,
 
 
 
-### Ridge Trace Plot
+### Ridge Trace Plot Geral
 
 ```{r modeloridge2, message=FALSE, warning=FALSE}
 
@@ -315,9 +315,232 @@ ggplot(df_long, aes(x = lambda, y = Coeficiente, color = Variavel)) +
 ```
 
 
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+
+
+## Modelo de Regressão Ridge (Sem Area Basal)
+
+
+```{r modeloridge3, message=FALSE, warning=FALSE}
+
+library(readxl)
+library(dplyr)
+library(caret)
+library(glmnet)
+library(car)
+library(corrplot)
+library(ggcorrplot)
+library(ggplot2)
+library(reshape2)
+
+dados_sem_area <- dados %>% select(-AREA_BASAL)
+
+modelo2_mlm <- lm(VOLUME ~ ., data = dados_sem_area)
+summary(modelo2_mlm)
+vif(modelo2_mlm)
+
+# Dividir em treino/teste
+set.seed(123)
+train_index2 <- createDataPartition(dados_sem_area$VOLUME, p = 0.9, list = FALSE)
+dados_treino2 <- dados_sem_area[train_index2, ]
+dados_teste2 <- dados_sem_area[-train_index2, ]
+
+# Matriz de preditores
+x_train2 <- model.matrix(VOLUME ~ ., dados_treino2)[, -1]
+y_train2 <- dados_treino2$VOLUME
+
+x_test2 <- model.matrix(VOLUME ~ ., dados_teste2)[, -1]
+y_test2 <- dados_teste2$VOLUME
+
+# Ridge com CV sem Área Basal
+cv_ridge2 <- cv.glmnet(x_train2, y_train2, alpha = 0, standardize = TRUE)
+best_lambda_ridge2 <- cv_ridge2$lambda.min
+modelo_ridge2 <- glmnet(x_train2, 
+                        y_train2, 
+                        alpha = 0, 
+                        lambda = best_lambda_ridge2, 
+                        standardize = TRUE)
+
+# Predição e avaliação
+y_pred_ridge2 <- predict(modelo_ridge2, s = best_lambda_ridge2, newx = x_test2)
+
+#------------------------------------------------------------------------------#
+# Medidas Performance
+R2_ridge2 <- cor(y_test2, y_pred_ridge2)^2
+rmse_ridge2 <- sqrt(mean((y_test2 - y_pred_ridge2)^2))
+mae_ridge2 <- mean(abs(y_test2 - y_pred_ridge2))
+mape_ridge2 <- mean(abs((y_test2 - y_pred_ridge2) / y_test2)) * 100
+
+# --- NOVAS MÉTRICAS: AIC e BIC ---
+# Predição nos dados de treino para obter o RSS
+y_pred_train_ridge2 <- predict(modelo_ridge2, s = best_lambda_ridge, newx = x_train2)
+RSS <- sum((y_train2 - y_pred_train_ridge2)^2)
+
+# Extrair os graus de liberdade efetivos do modelo
+# O objeto glmnet já nos dá isso!
+df <- modelo_ridge2$df[which(modelo_ridge2$lambda == best_lambda_ridge2)]
+
+# Número de observações no treino
+n <- nrow(dados_treino)
+
+# Cálculo do AIC e BIC
+AIC_ridge2 <- n * log(RSS/n) + 2 * (df + 1) # Adiciona 1 para o intercepto
+BIC_ridge2 <- n * log(RSS/n) + log(n) * (df + 1) # Adiciona 1 para o intercepto
+
+
+cat("\n--- Performance do Modelo Ridge(sem Area Basal) ---\n")
+cat("R² =", R2_ridge2, 
+    "\nRMSE =", rmse_ridge2, 
+    "\nMAE =", mae_ridge2,
+    "\nMAPE =" , mape_ridge2,
+    "\nAIC =", AIC_ridge2,
+    "\nBIC =", BIC_ridge2
+    )
+```
 
 
 ::: progress
 ::: {.progress-bar style="width: 100%;"}
 :::
 :::
+
+
+### Ridge Trace Plot (Sem Area Basal)
+
+```{r modeloridge4, message=FALSE, warning=FALSE}
+
+library(caret)
+library(glmnet)
+library(reshape2)
+
+
+modelo_ridge2 <- glmnet(x_train2, y_train2, alpha = 0, standardize = TRUE)
+
+# Extrai os coeficientes
+coefs <- as.matrix(modelo_ridge2$beta)
+lambdas <- modelo_ridge2$lambda
+df_coef <- as.data.frame(t(coefs))
+df_coef$lambda <- log(lambdas)  # log(lambda)
+df_long <- melt(df_coef, id.vars = "lambda", variable.name = "Variavel", value.name = "Coeficiente")
+
+# Gráfico customizado com ggplot2
+ggplot(df_long, aes(x = lambda, y = Coeficiente, color = Variavel)) +
+  geom_line(size = 1.2, alpha = 0.9) +  # Linhas mais espessas e levemente transparentes
+  geom_vline(xintercept = log(best_lambda_ridge2), 
+             color = "red", linetype = "dashed", size = 1) +
+  labs(
+    title = "Ridge Trace Plot",
+    subtitle = "Modelo Ridge (Sem Área Basal)",
+    x = expression(log(lambda)),
+    y = "Coeficientes dos preditores"
+  ) +
+  scale_color_brewer(palette = "Dark2") +  # Paleta de cores suave
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold", size = 16),
+    plot.subtitle = element_text(size = 13, color = "gray40"),
+    legend.title = element_blank(),
+    legend.text = element_text(size = 11),
+    legend.position = "right",
+    panel.grid.minor = element_blank(),
+    panel.grid.major.y = element_line(color = "gray85")
+  )
+
+
+
+
+```
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+
+
+
+
+## Modelo de Regressão Ridge (Sem DAP)
+
+
+```{r modeloridge5, message=FALSE, warning=FALSE}
+
+library(readxl)
+library(dplyr)
+library(caret)
+library(glmnet)
+library(car)
+library(corrplot)
+library(ggcorrplot)
+library(ggplot2)
+library(reshape2)
+
+dados_sem_dap <- dados %>% select(-DAP)
+
+modelo3_mlm <- lm(VOLUME ~ ., data = dados_sem_dap)
+summary(modelo3_mlm)
+vif(modelo3_mlm)
+
+
+# Dividir dados em treino e teste
+set.seed(123)
+train_idx_dap <- createDataPartition(dados_sem_dap$VOLUME, p = 0.9, list = FALSE)
+dados_treino_dap <- dados_sem_dap[train_idx_dap, ]
+dados_teste_dap  <- dados_sem_dap[-train_idx_dap, ]
+
+x_train_dap <- model.matrix(VOLUME ~ ., dados_treino_dap)[, -1]
+y_train_dap <- dados_treino_dap$VOLUME
+
+x_test_dap <- model.matrix(VOLUME ~ ., dados_teste_dap)[, -1]
+y_test_dap <- dados_teste_dap$VOLUME
+
+cv_ridge_dap <- cv.glmnet(x_train_dap, y_train_dap, alpha = 0, standardize = TRUE)
+best_lambda_dap <- cv_ridge_dap$lambda.min
+cat("Melhor lambda (sem DAP):", best_lambda_dap, "\n")
+
+modelo_ridge_dap <- glmnet(x_train_dap, y_train_dap,
+                           alpha = 0,
+                           lambda = best_lambda_dap,
+                           standardize = TRUE)
+coef(modelo_ridge_dap)
+
+# Predição
+y_pred_dap <- predict(modelo_ridge_dap, s = best_lambda_dap, newx = x_test_dap)
+
+# Métricas de desempenho
+R2_dap <- cor(y_test_dap, y_pred_dap)^2
+rmse_dap <- sqrt(mean((y_test_dap - y_pred_dap)^2))
+mae_dap <- mean(abs(y_test_dap - y_pred_dap))
+mape_dap <- mean(abs((y_test_dap - y_pred_dap) / y_test2)) * 100
+
+
+cat("\nModelo Ridge SEM DAP:\n")
+cat("R² =", R2_dap, 
+    "\nRMSE =", rmse_dap, 
+    "\nMAE =", mae_dap,
+    "\nMAPE =", mape_dap
+    )
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

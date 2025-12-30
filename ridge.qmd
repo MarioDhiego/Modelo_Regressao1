@@ -1,6 +1,4 @@
 
-
-
 ```{=html}
 <style>
   body{text-align: justify}
@@ -15,7 +13,7 @@
 
 
   
-# Modelo de Regressão Ridge
+# Regressão Ridge
 
 A regressão de Cume, Cumeeira, em Crista ou chamada **Ridge Regression**, proposta por Hoerl e Kennard (1970a), é um dos vários métodos propostos para remediar os problemas de multicolinearidade, alterando o método de mínimos quadrados para permitir estimadores viesados dos coeficientes de regressão. 
 
@@ -308,10 +306,6 @@ ggplot(df_long, aes(x = lambda, y = Coeficiente, color = Variavel)) +
     panel.grid.minor = element_blank(),
     panel.grid.major.y = element_line(color = "gray85")
   )
-
-
-
-
 ```
 
 
@@ -449,10 +443,6 @@ ggplot(df_long, aes(x = lambda, y = Coeficiente, color = Variavel)) +
     panel.grid.minor = element_blank(),
     panel.grid.major.y = element_line(color = "gray85")
   )
-
-
-
-
 ```
 
 
@@ -529,18 +519,261 @@ cat("R² =", R2_dap,
 ```
 
 
+### Ridge Trace Plot (Sem DAP)
+
+
+```{r ridgeplot2, message=FALSE, warning=FALSE}
+
+### Ridge Trace Plot (Sem DAP)
+
+library(glmnet)
+library(reshape2)
+library(ggplot2)
+
+# Ajuste do caminho completo do Ridge (sem fixar lambda)
+modelo_ridge_path_dap <- glmnet(
+  x_train_dap,
+  y_train_dap,
+  alpha = 0,
+  standardize = TRUE
+)
+
+# Extração dos coeficientes
+coefs_dap <- as.matrix(modelo_ridge_path_dap$beta)
+lambdas_dap <- modelo_ridge_path_dap$lambda
+
+df_coef_dap <- as.data.frame(t(coefs_dap))
+df_coef_dap$lambda <- log(lambdas_dap)
+
+df_long_dap <- melt(
+  df_coef_dap,
+  id.vars = "lambda",
+  variable.name = "Variavel",
+  value.name = "Coeficiente"
+)
+
+# Gráfico Ridge Trace Plot customizado
+ggplot(df_long_dap, aes(x = lambda, y = Coeficiente, color = Variavel)) +
+  geom_line(size = 1.2, alpha = 0.9) +
+  geom_vline(
+    xintercept = log(best_lambda_dap),
+    color = "red",
+    linetype = "dashed",
+    size = 1
+  ) +
+  labs(
+    title = "Ridge Trace Plot",
+    subtitle = "Modelo Ridge (Sem DAP)",
+    x = expression(log(lambda)),
+    y = "Coeficientes dos preditores"
+  ) +
+  scale_color_brewer(palette = "Dark2") +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold", size = 16),
+    plot.subtitle = element_text(size = 13, color = "gray40"),
+    legend.title = element_blank(),
+    legend.text = element_text(size = 11),
+    legend.position = "right",
+    panel.grid.minor = element_blank(),
+    panel.grid.major.y = element_line(color = "gray85")
+  )
+```
+
+
+
+## Modelo de Regressão Ridge (Sem DAP + Area Basal)
+
+
+```{r modeloridge6, message=FALSE, warning=FALSE}
+
+library(readxl)
+library(dplyr)
+library(caret)
+library(glmnet)
+library(car)
+library(corrplot)
+library(ggcorrplot)
+library(ggplot2)
+library(reshape2)
+
+dados_sem_dap_ab <- dados %>% select(-DAP, -AREA_BASAL)
+
+# Dividir em treino e teste
+set.seed(123)
+train_idx_dap_ab <- createDataPartition(dados_sem_dap_ab$VOLUME, p = 0.7, list = FALSE)
+dados_treino_dap_ab <- dados_sem_dap_ab[train_idx_dap_ab, ]
+dados_teste_dap_ab  <- dados_sem_dap_ab[-train_idx_dap_ab, ]
+
+
+x_train_dap_ab <- model.matrix(VOLUME ~ ., dados_treino_dap_ab)[, -1]
+y_train_dap_ab <- dados_treino_dap_ab$VOLUME
+
+x_test_dap_ab <- model.matrix(VOLUME ~ ., dados_teste_dap_ab)[, -1]
+y_test_dap_ab <- dados_teste_dap_ab$VOLUME
+
+cv_ridge_dap_ab <- cv.glmnet(x_train_dap_ab, y_train_dap_ab, alpha = 0, standardize = TRUE)
+best_lambda_dap_ab <- cv_ridge_dap_ab$lambda.min
+cat("Melhor lambda (sem DAP e Área Basal):", best_lambda_dap_ab, "\n")
+
+modelo_ridge_dap_ab <- glmnet(x_train_dap_ab, y_train_dap_ab,
+                              alpha = 0,
+                              lambda = best_lambda_dap_ab,
+                              standardize = TRUE)
+
+
+y_pred_dap_ab <- predict(modelo_ridge_dap_ab, s = best_lambda_dap_ab, newx = x_test_dap_ab)
+
+R2_dap_ab <- cor(y_test_dap_ab, y_pred_dap_ab)^2
+rmse_dap_ab <- sqrt(mean((y_test_dap_ab - y_pred_dap_ab)^2))
+mae_dap_ab <- mean(abs(y_test_dap_ab - y_pred_dap_ab))
+mape_dap_ab <- mean(abs((y_test_dap_ab - y_pred_dap_ab) / y_test2)) * 100
+
+
+cat("\nModelo Ridge SEM DAP e SEM Área Basal:\n")
+cat("R²:", R2_dap_ab, 
+    "\nRMSE:", rmse_dap_ab, 
+    "\nMAE:", mae_dap_ab,
+    "\nMAPE =", mape_dap_ab
+    )
+
+```
+
+
+
+### Ridge Trace Plot (Sem DAP + Area Basal)
+
+
+
+```{r ridgeplot1, message=FALSE, warning=FALSE}
+
+### Ridge Trace Plot (Sem DAP e Área Basal)
+
+library(glmnet)
+library(reshape2)
+library(ggplot2)
+
+# Ajuste do caminho completo do Ridge
+modelo_ridge_dap_ab <- glmnet(
+  x_train_dap_ab,
+  y_train_dap_ab,
+  alpha = 0,
+  standardize = TRUE
+)
+
+# Extração dos coeficientes
+coefs_dap_ab <- as.matrix(modelo_ridge_dap_ab$beta)
+lambdas_dap_ab <- modelo_ridge_dap_ab$lambda
+
+df_coef_dap_ab <- as.data.frame(t(coefs_dap_ab))
+df_coef_dap_ab$lambda <- log(lambdas_dap_ab)  # log(lambda)
+
+df_long_dap_ab <- melt(
+  df_coef_dap_ab,
+  id.vars = "lambda",
+  variable.name = "Variavel",
+  value.name = "Coeficiente"
+)
+
+# Gráfico Ridge Trace Plot customizado
+ggplot(df_long_dap_ab, aes(x = lambda, y = Coeficiente, color = Variavel)) +
+  geom_line(size = 1.2, alpha = 0.9) +
+  geom_vline(
+    xintercept = log(best_lambda_dap_ab),
+    color = "red",
+    linetype = "dashed",
+    size = 1
+  ) +
+  labs(
+    title = "Ridge Trace Plot",
+    subtitle = "Modelo Ridge (Sem DAP e Área Basal)",
+    x = expression(log(lambda)),
+    y = "Coeficientes dos preditores"
+  ) +
+  scale_color_brewer(palette = "Dark2") +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold", size = 16),
+    plot.subtitle = element_text(size = 13, color = "gray40"),
+    legend.title = element_blank(),
+    legend.text = element_text(size = 11),
+    legend.position = "right",
+    panel.grid.minor = element_blank(),
+    panel.grid.major.y = element_line(color = "gray85")
+  )
+```
 
 
 
 
 
+## Modelo Elastic Net (Geral)
+
+```{r modeloelasticnet1, message=FALSE, warning=FALSE}
+
+library(caret)
+library(glmnet)
+
+dados_elastic_net <- dados %>% select(-AREA_BASAL)
+
+dados_en <- na.omit(dados_elastic_net) 
+set.seed(123)
+train_index_en <- createDataPartition(dados_en$VOLUME, p = 0.9, list = FALSE)
+dados_treino_en <- dados_en[train_index_en, ]
+dados_teste_en <- dados_en[-train_index_en, ]
 
 
+# 3. Configurar o Controle de Treinamento (Validação Cruzada)
+# Usaremos validação cruzada de 10 folds para encontrar os melhores parâmetros
+train_control <- trainControl(method = "cv", number = 10)
 
 
+# 4. Definir a Grade de Parâmetros para Testar
+# O caret irá testar diferentes valores de 'alpha' e 'lambda'
+# Vamos testar 11 valores de alpha, de 0 (Ridge) a 1 (Lasso)
+# Para cada alpha, o caret testará automaticamente vários lambdas.
+tune_grid <- expand.grid(
+  alpha = seq(0, 1, length = 11),
+  lambda = seq(0.001, 0.2, length = 20) # Um grid de lambdas para testar
+)
+
+# 5. Treinar o Modelo Elastic Net
+# O caret vai fazer todo o trabalho de testar as combinações da grade
+# e encontrar a melhor. Isso pode levar um minuto.
+cat("Iniciando a otimização do Elastic Net...\n")
+set.seed(123)
+modelo_en <- train(
+  VOLUME ~ .,
+  data = dados_treino_en,
+  method = "glmnet",         # Especifica o uso de Ridge, Lasso, Elastic Net
+  trControl = train_control, # Aplica a validação cruzada
+  tuneGrid = tune_grid,      # Fornece a grade de parâmetros para testar
+  preProcess = c("center", "scale") # Boa prática: centralizar e escalar os dados
+)
+
+# 6. Ver os Melhores Parâmetros Encontrados
+cat("\n--- Melhor Combinação Encontrada pelo Caret ---\n")
+print(modelo_en$bestTune)
 
 
+# 7. Avaliar o Modelo Final no Conjunto de Teste
+y_pred_en <- predict(modelo_en, newdata = dados_teste_en)
+R2_en <- cor(dados_teste_en$VOLUME, y_pred_en)^2
+rmse_en <- sqrt(mean((dados_teste_en$VOLUME - y_pred_en)^2))
+mae_en <- mean(abs(dados_teste_en$VOLUME - y_pred_en))
+mape_en <- mean(abs((dados_teste_en$VOLUME - y_pred_en) / dados_teste_en$VOLUME)) * 100
 
+# 8. Apresentar os Resultados Finais
+cat("\n--- Performance do Modelo Elastic Net Otimizado ---\n")
+cat("Melhor alpha:", modelo_en$bestTune$alpha, "\n")
+cat("Melhor lambda:", modelo_en$bestTune$lambda, "\n")
+cat("----------------------------------------\n")
+cat("R² =", R2_en, "\n")
+cat("RMSE =", rmse_en, "\n")
+cat("MAE =", mae_en, "\n")
+cat("MAPE =", mape_en, "%\n")
+
+```
 
 
 

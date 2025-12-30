@@ -1,0 +1,152 @@
+
+```{=html}
+<style>
+  body{text-align: justify}
+</style>
+```
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+
+  
+# Randon Forest
+
+
+```{r base2, message=FALSE, warning=FALSE}
+library(readxl)
+
+dados <- read_excel("dados_pinus.xlsx")
+```
+
+
+
+
+```{r modeloforest1, message=FALSE, warning=FALSE}
+
+library(randomForest)
+library(caret)
+library(magrittr)
+library(dplyr)
+
+dados_rf <- dados %>% select(-AREA_BASAL)
+
+# 3. Divisão dos Dados em Treino e Teste (usando a mesma metodologia)
+set.seed(123) # Para reprodutibilidade
+train_index_rf <- createDataPartition(dados_rf$VOLUME, p = 0.9, list = FALSE)
+dados_treino_rf <- dados_rf[train_index_rf, ]
+dados_teste_rf <- dados_rf[-train_index_rf, ]
+
+# Separar a variável resposta (y) e as preditoras (x) no teste
+y_test_rf <- dados_teste_rf$VOLUME
+x_test_rf <- dados_teste_rf %>% select(-VOLUME)
+
+
+# 4. Treinamento do Modelo Random Forest
+# ntree: Número de árvores na floresta (um valor entre 500-1000 é um bom começo).
+# mtry: Número de variáveis testadas em cada "nó" da árvore. O padrão para regressão é (nº de variáveis / 3).
+set.seed(123) # Para reprodutibilidade do modelo
+modelo_rf <- randomForest(
+  VOLUME ~ .,                  # Fórmula: prever VOLUME usando todas as outras variáveis
+  data = dados_treino_rf,      # Usar os dados de treino
+  ntree = 500,                 # Número de árvores
+  importance = TRUE            # Guardar a importância das variáveis
+)
+
+# 5. Visualizar o resultado do modelo
+print(modelo_rf)
+# O resultado mostrará o "Mean of squared residuals" (MSE) e "% Var explained" (R²)
+# calculados internamente nos dados de "out-of-bag" (uma forma de validação cruzada)
+
+
+# 6. Fazer Previsões no Conjunto de Teste
+y_pred_rf <- predict(modelo_rf, newdata = x_test_rf)
+
+
+# 7. Avaliar a Performance do Modelo (comparando com o seu Ridge)
+R2_rf <- cor(y_test_rf, y_pred_rf)^2
+rmse_rf <- sqrt(mean((y_test_rf - y_pred_rf)^2))
+mae_rf <- mean(abs(y_test_rf - y_pred_rf))
+mape_rf <- mean(abs((y_test_rf - y_pred_rf) / y_test_rf)) * 100
+
+# 8. Apresentar os resultados
+cat("\n--- Performance do Modelo Random Forest ---\n")
+cat("R² =", R2_rf, 
+    "\nRMSE =", rmse_rf, 
+    "\nMAE =", mae_rf, 
+    "\nMAPE =", mape_rf
+    )
+
+# Ver a importância das variáveis
+importancia <- importance(modelo_rf)
+print(importancia)
+
+# Criar um gráfico de importância
+varImpPlot(modelo_rf, 
+           main = "Importância das Variáveis - Random Forest",
+           pch = 16, # Formato do ponto
+           col = "blue") # Cor
+
+
+
+# O gráfico é gerado diretamente a partir do objeto do modelo salvo
+plot(modelo_rf, main = "Erro do Modelo vs. Número de Árvores")
+legend("topright", 
+       legend = "Erro OOB", 
+       col = "blue", 
+       lty = 3)
+
+
+
+# Criar um dataframe com os valores reais e previstos
+resultados_rf <- data.frame(
+  Reais = y_test_rf,      # y_test_rf do seu script anterior
+  Previstos = y_pred_rf   # y_pred_rf do seu script anterior
+)
+
+# Gerar o gráfico
+ggplot(resultados_rf, aes(x = Reais, y = Previstos)) +
+  geom_point(alpha = 0.6, color = "blue") +
+  geom_abline(intercept = 0, slope = 1, color = "red", linetype = "dashed", size = 1) +
+  labs(
+    title = "Random Forest: Valores Previstos vs. Reais",
+    subtitle = "A linha vermelha representa a previsão perfeita",
+    x = "Volume Real",
+    y = "Volume Previsto"
+  ) +
+  theme_minimal() +
+  coord_fixed() # Garante que a escala dos eixos seja a mesma (1:1)
+
+
+# 1. Carregar Pacotes 
+library(rpart)
+library(rpart.plot)
+
+
+
+# 2. Construir uma ÚNICA Árvore de Decisão
+# Usamos o método "anova" para regressão (prever um número contínuo)
+arvore_decisao <- rpart(
+  VOLUME ~ .,
+  data = dados_treino_rf,
+  method = "anova"
+)
+
+# 3. Gerar o Gráfico da Árvore
+# A função rpart.plot cria uma visualização muito mais informativa e bonita
+rpart.plot(
+  arvore_decisao,
+  type = 4,                   # Estilo do gráfico (existem vários)
+  extra = 101,                # Adiciona informações extras nos nós
+  box.palette = "BuGn",       # Paleta de cores para os "nós"
+  branch.lty = 3,             # Estilo da linha dos "galhos"
+  shadow.col = "gray",        # Cor da sombra das caixas
+  main = "Previsão de Volume"
+)
+
+
+
+```

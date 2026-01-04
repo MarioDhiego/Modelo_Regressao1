@@ -1,4 +1,5 @@
 
+
 ```{=html}
 <style>
   body{text-align: justify}
@@ -46,8 +47,6 @@ A função estimada pela Regressão em Crista produz predições com novas obser
 ::: {.progress-bar style="width: 100%;"}
 :::
 :::
-
-
 
 ## Métodos pra Determinar $k$
 
@@ -160,7 +159,6 @@ Tabela de resultados referente ao modelo de regressão linear multiplo com n =25
 Modelo_mlm <- lm(VOLUME ~ ., data = dados)
 summary(Modelo_mlm)
 
-
 ```
 
 
@@ -183,6 +181,8 @@ vif(Modelo_mlm)
 ## Modelo de Regressão Ridge Geral
 
 ```{r modeloridge1, message=FALSE, warning=FALSE}
+
+#------------------ Pacotes ------------------------------------------#
 library(caret)
 library(glmnet)
 
@@ -190,24 +190,23 @@ library(glmnet)
 set.seed(123)
 train_index <- createDataPartition(dados$VOLUME, p = 0.9, list = FALSE)
 dados_treino <- dados[train_index, ]
-dados_teste <- dados[-train_index, ]
+dados_teste  <- dados[-train_index, ]
 
-x_train <- model.matrix(VOLUME ~ ., dados_treino)[, -1]  # Remove intercepto
+x_train <- model.matrix(VOLUME ~ ., dados_treino)[, -1]
 y_train <- dados_treino$VOLUME
 
 x_test <- model.matrix(VOLUME ~ ., dados_teste)[, -1]
 y_test <- dados_teste$VOLUME
 
 # Regressão Ridge (Ridge:alpha = 0; LASSO:alpha = 1)
-cv_ridge <- cv.glmnet(x_train, 
-                      y_train, 
-                      alpha = 0, 
-                      standardize = TRUE)
-
+cv_ridge <- cv.glmnet(x_train,
+                      y_train,
+                      alpha = 0,
+                      standardize = TRUE
+                      )
 # Melhor lambda
 best_lambda_ridge <- cv_ridge$lambda.min
 cat("Melhor lambda (Ridge):", best_lambda_ridge, "\n")
-
 
 modelo_ridge <- glmnet(x_train, 
                        y_train,
@@ -215,48 +214,47 @@ modelo_ridge <- glmnet(x_train,
                        lambda = best_lambda_ridge,
                        standardize = TRUE)
 
-
 # Coeficientes do modelo final
 coef_ridge <- coef(modelo_ridge)
 print(coef_ridge)
 
 # Predição no conjunto de teste
-y_pred_ridge <- predict(modelo_ridge, s = best_lambda_ridge, newx = x_test)
-
+y_pred_ridge <- as.numeric(predict(modelo_ridge, 
+                                   newx = x_test)
+                           )
 #------------------------------------------------------------------------------#
 # Medidas Performance
 
-R2_ridge <- cor(y_test, y_pred_ridge)^2
+R2_ridge   <- cor(y_test, y_pred_ridge)^2
 rmse_ridge <- sqrt(mean((y_test - y_pred_ridge)^2))
-mae_ridge <- mean(abs(y_test - y_pred_ridge))
+mae_ridge  <- mean(abs(y_test - y_pred_ridge))
 mape_ridge <- mean(abs((y_test - y_pred_ridge) / y_test)) * 100
 
-
-# --- NOVAS MÉTRICAS: AIC e BIC ---
 # Predição nos dados de treino para obter o RSS
-y_pred_train_ridge <- predict(modelo_ridge, s = best_lambda_ridge, newx = x_train)
+y_pred_train_ridge <- predict(modelo_ridge, 
+                              s = best_lambda_ridge, 
+                              newx = x_train)
+
 RSS <- sum((y_train - y_pred_train_ridge)^2)
+n   <- length(y_train)
 
-# Extrair os graus de liberdade efetivos do modelo
-# O objeto glmnet já nos dá isso!
-df <- modelo_ridge$df[which(modelo_ridge$lambda == best_lambda_ridge)]
+df_ridge <- modelo_ridge$df
 
-# Número de observações no treino
-n <- nrow(dados_treino)
-
-# Cálculo do AIC e BIC
-AIC_ridge <- n * log(RSS/n) + 2 * (df + 1) # Adiciona 1 para o intercepto
-BIC_ridge <- n * log(RSS/n) + log(n) * (df + 1) # Adiciona 1 para o intercepto
+AIC_ridge <- n * log(RSS / n) + 2 * (df_ridge + 1)
+BIC_ridge <- n * log(RSS / n) + log(n) * (df_ridge + 1)
 
 
-cat("\n--- Performance do Modelo Ridge ---\n")
-cat("R² =", R2_ridge, 
-    "\nRMSE =", rmse_ridge, 
-    "\nMAE =", mae_ridge, 
-    "\nMAPE =" , mape_ridge,
-    "\nAIC =", AIC_ridge,
-    "\nBIC =", BIC_ridge
+
+cat(
+  "\n--- Performance Ridge Geral ---\n",
+  "R²   =", round(R2_ridge, 4), "\n",
+  "RMSE =", round(rmse_ridge, 4), "\n",
+  "MAE  =", round(mae_ridge, 4), "\n",
+  "MAPE =", round(mape_ridge, 2), "%\n",
+  "AIC  =", round(AIC_ridge, 2), "\n",
+  "BIC  =", round(BIC_ridge, 2), "\n"
 )
+
 #------------------------------------------------------------------------------#
 ```
 
@@ -276,43 +274,47 @@ cat("R² =", R2_ridge,
 library(caret)
 library(glmnet)
 library(reshape2)
+library(ggplot2)
 
-modelo_ridge_seq <- glmnet(x_train, y_train, alpha = 0, standardize = TRUE)
 
+modelo_ridge_seq <- glmnet(
+  x_train,
+  y_train,
+  alpha = 0,
+  standardize = TRUE
+)
 
-# Extrair os coeficientes do modelo Ridge
 coefs <- as.matrix(modelo_ridge_seq$beta)
-lambdas <- modelo_ridge_seq$lambda
 df_coef <- as.data.frame(t(coefs))
-df_coef$lambda <- log(lambdas)  # log(lambda)
+df_coef$lambda <- log(modelo_ridge_seq$lambda)
 
-# Transformar para formato longo (long format)
-df_long <- melt(df_coef, id.vars = "lambda", 
-                variable.name = "Variavel", 
-                value.name = "Coeficiente")
+df_long <- melt(
+  df_coef,
+  id.vars = "lambda",
+  variable.name = "Variavel",
+  value.name = "Coeficiente"
+)
 
-#Plot com ggplot2
-ggplot(df_long, aes(x = lambda, y = Coeficiente, color = Variavel)) +
-  geom_line(size = 1.2, alpha = 0.9) +  # Linhas suaves e grossas
-  geom_vline(xintercept = log(best_lambda_ridge), 
-             color = "red", linetype = "dashed", size = 1) +
+ggplot(df_long, aes(lambda, Coeficiente, color = Variavel)) +
+  geom_line(linewidth = 2, alpha = 0.85) +
+  geom_vline(
+    xintercept = log(best_lambda_ridge),
+    linetype = "dashed",
+    color = "red"
+  ) +
   labs(
     title = "Ridge Trace Plot",
-    subtitle = "Modelo Ridge com Todas",
+    subtitle = "Modelo Ridge Geral",
     x = expression(log(lambda)),
     y = "Coeficientes"
   ) +
-  scale_color_brewer(palette = "Dark2") +  # Paleta de cores agradável
   theme_minimal(base_size = 14) +
   theme(
-    plot.title = element_text(face = "bold", size = 16),
-    plot.subtitle = element_text(size = 13, color = "gray40"),
-    legend.title = element_blank(),
-    legend.text = element_text(size = 10),
     legend.position = "right",
-    panel.grid.minor = element_blank(),
-    panel.grid.major.y = element_line(color = "gray85")
+    legend.title = element_blank()
   )
+
+
 ```
 
 ::: progress
@@ -423,69 +425,94 @@ library(ggcorrplot)
 library(ggplot2)
 library(reshape2)
 
+
+## Modelo de Regressão Ridge (Sem Área Basal)
 dados_sem_area <- dados %>% select(-AREA_BASAL)
 
+#---------------------------------------------------------------#
+# Modelo Linear Múltiplo (baseline)
 modelo2_mlm <- lm(VOLUME ~ ., data = dados_sem_area)
 summary(modelo2_mlm)
 vif(modelo2_mlm)
 
-# Dividir em treino/teste
+#---------------------------------------------------------------#
+# Partição treino / teste
 set.seed(123)
-train_index2 <- createDataPartition(dados_sem_area$VOLUME, p = 0.9, list = FALSE)
-dados_treino2 <- dados_sem_area[train_index2, ]
-dados_teste2 <- dados_sem_area[-train_index2, ]
 
-# Matriz de preditores
+train_index2 <- createDataPartition(
+  dados_sem_area$VOLUME,
+  p = 0.9,
+  list = FALSE
+)
+
+dados_treino2 <- dados_sem_area[train_index2, ]
+dados_teste2  <- dados_sem_area[-train_index2, ]
+
+#---------------------------------------------------------------#
+# Matrizes de preditores
 x_train2 <- model.matrix(VOLUME ~ ., dados_treino2)[, -1]
 y_train2 <- dados_treino2$VOLUME
 
 x_test2 <- model.matrix(VOLUME ~ ., dados_teste2)[, -1]
 y_test2 <- dados_teste2$VOLUME
 
-# Ridge com CV sem Área Basal
-cv_ridge2 <- cv.glmnet(x_train2, y_train2, alpha = 0, standardize = TRUE)
+#---------------------------------------------------------------#
+# Ridge com validação cruzada
+cv_ridge2 <- cv.glmnet(
+  x_train2,
+  y_train2,
+  alpha = 0,
+  standardize = TRUE
+)
+
 best_lambda_ridge2 <- cv_ridge2$lambda.min
-modelo_ridge2 <- glmnet(x_train2, 
-                        y_train2, 
-                        alpha = 0, 
-                        lambda = best_lambda_ridge2, 
-                        standardize = TRUE)
 
-# Predição e avaliação
-y_pred_ridge2 <- predict(modelo_ridge2, s = best_lambda_ridge2, newx = x_test2)
+modelo_ridge2 <- glmnet(
+  x_train2,
+  y_train2,
+  alpha = 0,
+  lambda = best_lambda_ridge2,
+  standardize = TRUE
+)
 
-#------------------------------------------------------------------------------#
-# Medidas Performance
-R2_ridge2 <- cor(y_test2, y_pred_ridge2)^2
+#---------------------------------------------------------------#
+# Predição no conjunto de teste
+y_pred_ridge2 <- as.numeric(
+  predict(modelo_ridge2, newx = x_test2)
+)
+
+#---------------------------------------------------------------#
+# Métricas de desempenho
+R2_ridge2   <- cor(y_test2, y_pred_ridge2)^2
 rmse_ridge2 <- sqrt(mean((y_test2 - y_pred_ridge2)^2))
-mae_ridge2 <- mean(abs(y_test2 - y_pred_ridge2))
+mae_ridge2  <- mean(abs(y_test2 - y_pred_ridge2))
 mape_ridge2 <- mean(abs((y_test2 - y_pred_ridge2) / y_test2)) * 100
 
-# --- NOVAS MÉTRICAS: AIC e BIC ---
-# Predição nos dados de treino para obter o RSS
-y_pred_train_ridge2 <- predict(modelo_ridge2, s = best_lambda_ridge, newx = x_train2)
-RSS <- sum((y_train2 - y_pred_train_ridge2)^2)
+#---------------------------------------------------------------#
+# AIC e BIC (via RSS + df efetivos)
+y_pred_train_ridge2 <- as.numeric(
+  predict(modelo_ridge2, newx = x_train2)
+)
 
-# Extrair os graus de liberdade efetivos do modelo
-# O objeto glmnet já nos dá isso!
-df <- modelo_ridge2$df[which(modelo_ridge2$lambda == best_lambda_ridge2)]
+RSS2 <- sum((y_train2 - y_pred_train_ridge2)^2)
 
-# Número de observações no treino
-n <- nrow(dados_treino)
+n2  <- length(y_train2)
+df2 <- modelo_ridge2$df
 
-# Cálculo do AIC e BIC
-AIC_ridge2 <- n * log(RSS/n) + 2 * (df + 1) # Adiciona 1 para o intercepto
-BIC_ridge2 <- n * log(RSS/n) + log(n) * (df + 1) # Adiciona 1 para o intercepto
+AIC_ridge2 <- n2 * log(RSS2 / n2) + 2 * (df2 + 1)
+BIC_ridge2 <- n2 * log(RSS2 / n2) + log(n2) * (df2 + 1)
 
-
-cat("\n--- Performance do Modelo Ridge(sem Area Basal) ---\n")
-cat("R² =", R2_ridge2, 
-    "\nRMSE =", rmse_ridge2, 
-    "\nMAE =", mae_ridge2,
-    "\nMAPE =" , mape_ridge2,
-    "\nAIC =", AIC_ridge2,
-    "\nBIC =", BIC_ridge2
-    )
+#---------------------------------------------------------------#
+# Resultado final
+cat(
+  "\n--- Performance do Modelo Ridge (Sem Área Basal) ---\n",
+  "R²   =", round(R2_ridge2, 4), "\n",
+  "RMSE =", round(rmse_ridge2, 4), "\n",
+  "MAE  =", round(mae_ridge2, 4), "\n",
+  "MAPE =", round(mape_ridge2, 2), "%\n",
+  "AIC  =", round(AIC_ridge2, 2), "\n",
+  "BIC  =", round(BIC_ridge2, 2), "\n"
+)
 ```
 
 
@@ -501,30 +528,54 @@ cat("R² =", R2_ridge2,
 
 library(caret)
 library(glmnet)
+library(ggplot2)
 library(reshape2)
 
+### Ridge Trace Plot (Sem Área Basal)
+modelo_ridge2_seq <- glmnet(
+  x_train2,
+  y_train2,
+  alpha = 0,
+  standardize = TRUE
+)
 
-modelo_ridge2 <- glmnet(x_train2, y_train2, alpha = 0, standardize = TRUE)
+#---------------------------------------------------------------#
+# Extração dos coeficientes
+coefs2 <- as.matrix(modelo_ridge2_seq$beta)
+lambdas2 <- modelo_ridge2_seq$lambda
 
-# Extrai os coeficientes
-coefs <- as.matrix(modelo_ridge2$beta)
-lambdas <- modelo_ridge2$lambda
-df_coef <- as.data.frame(t(coefs))
-df_coef$lambda <- log(lambdas)  # log(lambda)
-df_long <- melt(df_coef, id.vars = "lambda", variable.name = "Variavel", value.name = "Coeficiente")
+df_coef2 <- as.data.frame(t(coefs2))
+df_coef2$lambda <- log(lambdas2)
 
-# Gráfico customizado com ggplot2
-ggplot(df_long, aes(x = lambda, y = Coeficiente, color = Variavel)) +
-  geom_line(size = 1.2, alpha = 0.9) +  # Linhas mais espessas e levemente transparentes
-  geom_vline(xintercept = log(best_lambda_ridge2), 
-             color = "red", linetype = "dashed", size = 1) +
+#---------------------------------------------------------------#
+# Formato longo
+df_long2 <- melt(
+  df_coef2,
+  id.vars = "lambda",
+  variable.name = "Variavel",
+  value.name = "Coeficiente"
+)
+
+#---------------------------------------------------------------#
+# Ridge Trace Plot
+ggplot(df_long2,
+       aes(x = lambda,
+           y = Coeficiente,
+           color = Variavel)) +
+  geom_line(linewidth = 1.2, alpha = 0.9) +
+  geom_vline(
+    xintercept = log(best_lambda_ridge2),
+    linetype = "dashed",
+    color = "red",
+    linewidth = 1
+  ) +
   labs(
     title = "Ridge Trace Plot",
     subtitle = "Modelo Ridge (Sem Área Basal)",
     x = expression(log(lambda)),
     y = "Coeficientes dos preditores"
   ) +
-  scale_color_brewer(palette = "Dark2") +  # Paleta de cores suave
+  scale_color_brewer(palette = "Dark2") +
   theme_minimal(base_size = 14) +
   theme(
     plot.title = element_text(face = "bold", size = 16),
@@ -535,6 +586,9 @@ ggplot(df_long, aes(x = lambda, y = Coeficiente, color = Variavel)) +
     panel.grid.minor = element_blank(),
     panel.grid.major.y = element_line(color = "gray85")
   )
+
+
+
 ```
 
 
@@ -562,51 +616,107 @@ library(ggcorrplot)
 library(ggplot2)
 library(reshape2)
 
+
+## Modelo de Regressão Ridge (Sem DAP)
+#---------------------------------------------------------------#
+# Base sem DAP
 dados_sem_dap <- dados %>% select(-DAP)
 
+# Modelo linear auxiliar (diagnóstico)
 modelo3_mlm <- lm(VOLUME ~ ., data = dados_sem_dap)
 summary(modelo3_mlm)
 vif(modelo3_mlm)
 
-
-# Dividir dados em treino e teste
+#---------------------------------------------------------------#
+# Divisão treino / teste
 set.seed(123)
-train_idx_dap <- createDataPartition(dados_sem_dap$VOLUME, p = 0.9, list = FALSE)
+train_idx_dap <- createDataPartition(
+  dados_sem_dap$VOLUME,
+  p = 0.9,
+  list = FALSE
+)
+
 dados_treino_dap <- dados_sem_dap[train_idx_dap, ]
 dados_teste_dap  <- dados_sem_dap[-train_idx_dap, ]
 
+#---------------------------------------------------------------#
+# Matrizes para o glmnet
 x_train_dap <- model.matrix(VOLUME ~ ., dados_treino_dap)[, -1]
 y_train_dap <- dados_treino_dap$VOLUME
 
 x_test_dap <- model.matrix(VOLUME ~ ., dados_teste_dap)[, -1]
 y_test_dap <- dados_teste_dap$VOLUME
 
-cv_ridge_dap <- cv.glmnet(x_train_dap, y_train_dap, alpha = 0, standardize = TRUE)
+#---------------------------------------------------------------#
+# Ridge com validação cruzada
+cv_ridge_dap <- cv.glmnet(
+  x_train_dap,
+  y_train_dap,
+  alpha = 0,
+  standardize = TRUE
+)
+
 best_lambda_dap <- cv_ridge_dap$lambda.min
 cat("Melhor lambda (sem DAP):", best_lambda_dap, "\n")
 
-modelo_ridge_dap <- glmnet(x_train_dap, y_train_dap,
-                           alpha = 0,
-                           lambda = best_lambda_dap,
-                           standardize = TRUE)
+#---------------------------------------------------------------#
+# Modelo Ridge final
+modelo_ridge_dap <- glmnet(
+  x_train_dap,
+  y_train_dap,
+  alpha = 0,
+  lambda = best_lambda_dap,
+  standardize = TRUE
+)
+
 coef(modelo_ridge_dap)
 
-# Predição
-y_pred_dap <- predict(modelo_ridge_dap, s = best_lambda_dap, newx = x_test_dap)
+#---------------------------------------------------------------#
+# Predição no conjunto de teste
+y_pred_dap <- predict(
+  modelo_ridge_dap,
+  s = best_lambda_dap,
+  newx = x_test_dap
+)
 
+#---------------------------------------------------------------#
 # Métricas de desempenho
-R2_dap <- cor(y_test_dap, y_pred_dap)^2
+R2_dap   <- cor(y_test_dap, y_pred_dap)^2
 rmse_dap <- sqrt(mean((y_test_dap - y_pred_dap)^2))
-mae_dap <- mean(abs(y_test_dap - y_pred_dap))
-mape_dap <- mean(abs((y_test_dap - y_pred_dap) / y_test2)) * 100
+mae_dap  <- mean(abs(y_test_dap - y_pred_dap))
+mape_dap <- mean(abs((y_test_dap - y_pred_dap) / y_test_dap)) * 100
 
+#---------------------------------------------------------------#
+# AIC e BIC (versão adequada para Ridge)
+y_pred_train_dap <- predict(
+  modelo_ridge_dap,
+  s = best_lambda_dap,
+  newx = x_train_dap
+)
 
-cat("\nModelo Ridge SEM DAP:\n")
-cat("R² =", R2_dap, 
-    "\nRMSE =", rmse_dap, 
-    "\nMAE =", mae_dap,
-    "\nMAPE =", mape_dap
-    )
+RSS_dap <- sum((y_train_dap - y_pred_train_dap)^2)
+
+# Graus de liberdade efetivos
+df_dap <- modelo_ridge_dap$df[
+  which(modelo_ridge_dap$lambda == best_lambda_dap)
+]
+
+n_dap <- nrow(dados_treino_dap)
+
+AIC_dap <- n_dap * log(RSS_dap / n_dap) + 2 * (df_dap + 1)
+BIC_dap <- n_dap * log(RSS_dap / n_dap) + log(n_dap) * (df_dap + 1)
+
+#---------------------------------------------------------------#
+# Resultados
+cat("\n--- Performance do Modelo Ridge (Sem DAP) ---\n")
+cat(
+  "R²   =", R2_dap,
+  "\nRMSE =", rmse_dap,
+  "\nMAE  =", mae_dap,
+  "\nMAPE =", mape_dap,
+  "\nAIC  =", AIC_dap,
+  "\nBIC  =", BIC_dap
+)
 ```
 
 
@@ -628,6 +738,7 @@ library(glmnet)
 library(reshape2)
 library(ggplot2)
 
+#---------------------------------------------------------------#
 # Ajuste do caminho completo do Ridge (sem fixar lambda)
 modelo_ridge_path_dap <- glmnet(
   x_train_dap,
@@ -636,46 +747,160 @@ modelo_ridge_path_dap <- glmnet(
   standardize = TRUE
 )
 
+#---------------------------------------------------------------#
 # Extração dos coeficientes
-coefs_dap <- as.matrix(modelo_ridge_path_dap$beta)
+coefs_dap   <- as.matrix(modelo_ridge_path_dap$beta)
 lambdas_dap <- modelo_ridge_path_dap$lambda
 
 df_coef_dap <- as.data.frame(t(coefs_dap))
-df_coef_dap$lambda <- log(lambdas_dap)
+df_coef_dap$log_lambda <- log(lambdas_dap)
 
+#---------------------------------------------------------------#
+# Formato longo
 df_long_dap <- melt(
   df_coef_dap,
-  id.vars = "lambda",
+  id.vars = "log_lambda",
   variable.name = "Variavel",
   value.name = "Coeficiente"
 )
 
-# Gráfico Ridge Trace Plot customizado
-ggplot(df_long_dap, aes(x = lambda, y = Coeficiente, color = Variavel)) +
-  geom_line(size = 1.2, alpha = 0.9) +
+#---------------------------------------------------------------#
+# Ridge Trace Plot
+ggplot(df_long_dap,
+       aes(x = log_lambda,
+           y = Coeficiente,
+           color = Variavel)) +
+  geom_line(linewidth = 1.2, alpha = 0.9) +
   geom_vline(
     xintercept = log(best_lambda_dap),
-    color = "red",
     linetype = "dashed",
-    size = 1
+    linewidth = 1,
+    color = "red"
   ) +
   labs(
     title = "Ridge Trace Plot",
     subtitle = "Modelo Ridge (Sem DAP)",
     x = expression(log(lambda)),
-    y = "Coeficientes dos preditores"
+    y = "Coeficientes dos preditores",
+    color = "Variáveis"
   ) +
   scale_color_brewer(palette = "Dark2") +
   theme_minimal(base_size = 14) +
   theme(
     plot.title = element_text(face = "bold", size = 16),
     plot.subtitle = element_text(size = 13, color = "gray40"),
-    legend.title = element_blank(),
-    legend.text = element_text(size = 11),
+    legend.title = element_text(size = 11),
+    legend.text = element_text(size = 10),
     legend.position = "right",
     panel.grid.minor = element_blank(),
     panel.grid.major.y = element_line(color = "gray85")
   )
+
+
+
+
+```
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+
+### VIF Trace Plot (Sem DAP)
+
+
+
+```{r}
+
+### VIF Trace Plot (Sem DAP)
+
+library(ggplot2)
+library(reshape2)
+
+#---------------------------------------------------------------#
+# MATRIZ DE PREDITORES (SEM DAP)
+X_dap <- scale(x_train_dap)
+
+#---------------------------------------------------------------#
+# SEQUÊNCIA DE k (penalização)
+k_values <- exp(seq(
+  log(1e-4),
+  log(10),
+  length.out = 100
+))
+
+#---------------------------------------------------------------#
+# FUNÇÃO PARA CÁLCULO DO VIF RIDGE
+ridge_vif <- function(X, k) {
+  XtX <- crossprod(X)
+  A <- solve(XtX + diag(k, ncol(X)))
+  diag(A %*% XtX %*% A)
+}
+
+#---------------------------------------------------------------#
+# CÁLCULO DOS VIFS AO LONGO DE k
+vif_matrix_dap <- sapply(
+  k_values,
+  function(k) ridge_vif(X_dap, k)
+)
+
+#---------------------------------------------------------------#
+# ORGANIZAÇÃO DOS DADOS
+vif_df_dap <- as.data.frame(t(vif_matrix_dap))
+colnames(vif_df_dap) <- colnames(X_dap)
+vif_df_dap$k <- k_values
+
+vif_long_dap <- melt(
+  vif_df_dap,
+  id.vars = "k",
+  variable.name = "Variavel",
+  value.name = "VIF"
+)
+
+# Remove problemas numéricos
+vif_long_dap <- vif_long_dap[
+  is.finite(vif_long_dap$VIF) & vif_long_dap$VIF > 0,
+]
+
+#---------------------------------------------------------------#
+# GRÁFICO VIF TRACE PLOT
+ggplot(vif_long_dap,
+       aes(x = log(k),
+           y = VIF,
+           color = Variavel)) +
+  geom_line(linewidth = 1.2, alpha = 0.9) +
+  geom_hline(
+    yintercept = 10,
+    linetype = "dashed",
+    color = "gray40"
+  ) +
+  geom_vline(
+    xintercept = log(best_lambda_dap),
+    linetype = "dashed",
+    color = "red",
+    linewidth = 1
+  ) +
+  scale_y_log10() +
+  labs(
+    title = "VIF Trace Plot",
+    subtitle = "Modelo Ridge (Sem DAP)",
+    x = expression(log(k)),
+    y = "VIF",
+    color = "Variáveis"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "right",
+    plot.title = element_text(face = "bold", size = 16),
+    plot.subtitle = element_text(size = 12, color = "gray40"),
+    legend.title = element_text(size = 11),
+    legend.text = element_text(size = 10)
+  )
+
+
+
 ```
 
 
@@ -690,56 +915,124 @@ ggplot(df_long_dap, aes(x = lambda, y = Coeficiente, color = Variavel)) +
 
 ```{r modeloridge6, message=FALSE, warning=FALSE}
 
-library(readxl)
+## Modelo de Regressão Ridge (Sem DAP + Área Basal)
+
 library(dplyr)
 library(caret)
 library(glmnet)
-library(car)
-library(corrplot)
-library(ggcorrplot)
-library(ggplot2)
-library(reshape2)
 
-dados_sem_dap_ab <- dados %>% select(-DAP, -AREA_BASAL)
+#---------------------------------------------------------------#
+# REMOÇÃO DAS VARIÁVEIS
+dados_sem_dap_ab <- dados %>% 
+  select(-DAP, -AREA_BASAL)
 
-# Dividir em treino e teste
+#---------------------------------------------------------------#
+# DIVISÃO TREINO / TESTE
 set.seed(123)
-train_idx_dap_ab <- createDataPartition(dados_sem_dap_ab$VOLUME, p = 0.7, list = FALSE)
+train_idx_dap_ab <- createDataPartition(
+  dados_sem_dap_ab$VOLUME,
+  p = 0.9,
+  list = FALSE
+)
+
 dados_treino_dap_ab <- dados_sem_dap_ab[train_idx_dap_ab, ]
 dados_teste_dap_ab  <- dados_sem_dap_ab[-train_idx_dap_ab, ]
 
+#---------------------------------------------------------------#
+# MATRIZES DE PROJETO
+x_train_dap_ab <- model.matrix(
+  VOLUME ~ ., 
+  dados_treino_dap_ab
+)[, -1]
 
-x_train_dap_ab <- model.matrix(VOLUME ~ ., dados_treino_dap_ab)[, -1]
 y_train_dap_ab <- dados_treino_dap_ab$VOLUME
 
-x_test_dap_ab <- model.matrix(VOLUME ~ ., dados_teste_dap_ab)[, -1]
+x_test_dap_ab <- model.matrix(
+  VOLUME ~ ., 
+  dados_teste_dap_ab
+)[, -1]
+
 y_test_dap_ab <- dados_teste_dap_ab$VOLUME
 
-cv_ridge_dap_ab <- cv.glmnet(x_train_dap_ab, y_train_dap_ab, alpha = 0, standardize = TRUE)
+#---------------------------------------------------------------#
+# RIDGE COM VALIDAÇÃO CRUZADA
+cv_ridge_dap_ab <- cv.glmnet(
+  x_train_dap_ab,
+  y_train_dap_ab,
+  alpha = 0,
+  standardize = TRUE
+)
+
 best_lambda_dap_ab <- cv_ridge_dap_ab$lambda.min
-cat("Melhor lambda (sem DAP e Área Basal):", best_lambda_dap_ab, "\n")
+cat(
+  "Melhor lambda (sem DAP e Área Basal):",
+  best_lambda_dap_ab, "\n"
+)
 
-modelo_ridge_dap_ab <- glmnet(x_train_dap_ab, y_train_dap_ab,
-                              alpha = 0,
-                              lambda = best_lambda_dap_ab,
-                              standardize = TRUE)
+#---------------------------------------------------------------#
+# MODELO FINAL
+modelo_ridge_dap_ab <- glmnet(
+  x_train_dap_ab,
+  y_train_dap_ab,
+  alpha = 0,
+  lambda = best_lambda_dap_ab,
+  standardize = TRUE
+)
 
+#---------------------------------------------------------------#
+# PREDIÇÃO (TESTE)
+y_pred_dap_ab <- predict(
+  modelo_ridge_dap_ab,
+  s = best_lambda_dap_ab,
+  newx = x_test_dap_ab
+)
 
-y_pred_dap_ab <- predict(modelo_ridge_dap_ab, s = best_lambda_dap_ab, newx = x_test_dap_ab)
-
-R2_dap_ab <- cor(y_test_dap_ab, y_pred_dap_ab)^2
+#---------------------------------------------------------------#
+# MÉTRICAS DE DESEMPENHO
+R2_dap_ab   <- cor(y_test_dap_ab, y_pred_dap_ab)^2
 rmse_dap_ab <- sqrt(mean((y_test_dap_ab - y_pred_dap_ab)^2))
-mae_dap_ab <- mean(abs(y_test_dap_ab - y_pred_dap_ab))
-mape_dap_ab <- mean(abs((y_test_dap_ab - y_pred_dap_ab) / y_test_dap_ab)) * 100
+mae_dap_ab  <- mean(abs(y_test_dap_ab - y_pred_dap_ab))
+mape_dap_ab <- mean(
+  abs((y_test_dap_ab - y_pred_dap_ab) / y_test_dap_ab)
+) * 100
 
+#---------------------------------------------------------------#
+# AIC e BIC (APROXIMADOS)
+y_pred_train_dap_ab <- predict(
+  modelo_ridge_dap_ab,
+  s = best_lambda_dap_ab,
+  newx = x_train_dap_ab
+)
 
+RSS_dap_ab <- sum(
+  (y_train_dap_ab - y_pred_train_dap_ab)^2
+)
 
-cat("\nModelo Ridge SEM DAP e SEM Área Basal:\n")
-cat("R²:", R2_dap_ab, 
-    "\nRMSE:", rmse_dap_ab, 
-    "\nMAE:", mae_dap_ab,
-    "\nMAPE =", mape_dap_ab
-    )
+df_dap_ab <- modelo_ridge_dap_ab$df[
+  which.min(
+    abs(modelo_ridge_dap_ab$lambda - best_lambda_dap_ab)
+  )
+]
+
+n_dap_ab <- nrow(dados_treino_dap_ab)
+
+AIC_dap_ab <- n_dap_ab * log(RSS_dap_ab / n_dap_ab) +
+  2 * (df_dap_ab + 1)
+
+BIC_dap_ab <- n_dap_ab * log(RSS_dap_ab / n_dap_ab) +
+  log(n_dap_ab) * (df_dap_ab + 1)
+
+#---------------------------------------------------------------#
+# RESULTADOS
+cat("\n--- Modelo Ridge SEM DAP e SEM Área Basal ---\n")
+cat(
+  "R² =", R2_dap_ab,
+  "\nRMSE =", rmse_dap_ab,
+  "\nMAE =", mae_dap_ab,
+  "\nMAPE =", mape_dap_ab,
+  "\nAIC =", AIC_dap_ab,
+  "\nBIC =", BIC_dap_ab
+)
 
 ```
 
@@ -754,10 +1047,8 @@ cat("R²:", R2_dap_ab,
 ### Ridge Trace Plot (Sem DAP + Area Basal)
 
 
-
 ```{r ridgeplot1, message=FALSE, warning=FALSE}
 
-### Ridge Trace Plot (Sem DAP e Área Basal)
 
 library(glmnet)
 library(reshape2)
@@ -775,24 +1066,26 @@ modelo_ridge_dap_ab <- glmnet(
 coefs_dap_ab <- as.matrix(modelo_ridge_dap_ab$beta)
 lambdas_dap_ab <- modelo_ridge_dap_ab$lambda
 
+# Organização dos dados
 df_coef_dap_ab <- as.data.frame(t(coefs_dap_ab))
-df_coef_dap_ab$lambda <- log(lambdas_dap_ab)  # log(lambda)
+df_coef_dap_ab$log_lambda <- log(lambdas_dap_ab)
 
 df_long_dap_ab <- melt(
   df_coef_dap_ab,
-  id.vars = "lambda",
+  id.vars = "log_lambda",
   variable.name = "Variavel",
   value.name = "Coeficiente"
 )
 
-# Gráfico Ridge Trace Plot customizado
-ggplot(df_long_dap_ab, aes(x = lambda, y = Coeficiente, color = Variavel)) +
-  geom_line(size = 1.2, alpha = 0.9) +
+# Gráfico Ridge Trace Plot
+ggplot(df_long_dap_ab,
+       aes(x = log_lambda, y = Coeficiente, color = Variavel)) +
+  geom_line(linewidth = 1.2, alpha = 0.9) +
   geom_vline(
     xintercept = log(best_lambda_dap_ab),
-    color = "red",
     linetype = "dashed",
-    size = 1
+    linewidth = 1,
+    color = "red"
   ) +
   labs(
     title = "Ridge Trace Plot",
@@ -805,12 +1098,15 @@ ggplot(df_long_dap_ab, aes(x = lambda, y = Coeficiente, color = Variavel)) +
   theme(
     plot.title = element_text(face = "bold", size = 16),
     plot.subtitle = element_text(size = 13, color = "gray40"),
+    legend.position = "right",
     legend.title = element_blank(),
     legend.text = element_text(size = 11),
-    legend.position = "right",
     panel.grid.minor = element_blank(),
     panel.grid.major.y = element_line(color = "gray85")
   )
+
+
+
 ```
 
 ::: progress
@@ -824,166 +1120,180 @@ ggplot(df_long_dap_ab, aes(x = lambda, y = Coeficiente, color = Variavel)) +
 
 
 
-
-```{r}
+```{r viftrace_dap_ab, message=FALSE, warning=FALSE}
 
 library(ggplot2)
 library(reshape2)
 
-# Matriz de preditores padronizada
+# ---------------- MATRIZ DE PREDITORES ---------------- #
 X <- scale(x_train_dap_ab)
-p <- ncol(X)
 
-# Sequência LOGARÍTMICA de k (robusta)
+# ---------------- SEQUÊNCIA LOGARÍTMICA DE k ---------------- #
 k_values <- exp(seq(
-  log(1e-4),   # k mínimo
-  log(10),     # k máximo
+  log(1e-4),
+  log(10),
   length.out = 100
 ))
 
-# Função VIF Ridge estável
+# ---------------- FUNÇÃO VIF RIDGE ---------------- #
 ridge_vif <- function(X, k) {
   XtX <- crossprod(X)
   A <- solve(XtX + diag(k, ncol(X)))
-  vif <- diag(A %*% XtX %*% A)
-  return(vif)
+  diag(A %*% XtX %*% A)
 }
 
-# Calcular VIFs
+# ---------------- CÁLCULO DOS VIFS ---------------- #
 vif_matrix <- sapply(k_values, function(k) ridge_vif(X, k))
 
-# Organizar dados
+# ---------------- ORGANIZAÇÃO DOS DADOS ---------------- #
 vif_df <- as.data.frame(t(vif_matrix))
 colnames(vif_df) <- colnames(X)
-vif_df$k <- k_values
+vif_df$log_k <- log(k_values)
 
 vif_long <- melt(
   vif_df,
-  id.vars = "k",
+  id.vars = "log_k",
   variable.name = "Variavel",
   value.name = "VIF"
 )
 
-# Remover lixo numérico
+# Remoção de problemas numéricos
 vif_long <- vif_long[
   is.finite(vif_long$VIF) & vif_long$VIF > 0,
 ]
 
-# GRÁFICO FINAL (AGORA APARECE)
-ggplot(vif_long, aes(
-  x = log(k),
-  y = VIF,
-  color = Variavel,
-  group = Variavel
-)) +
-  geom_line(linewidth = 2, alpha = 0.9) +
+# ---------------- GRÁFICO FINAL ---------------- #
+ggplot(
+  vif_long,
+  aes(x = log_k, y = VIF, color = Variavel, group = Variavel)
+) +
+  geom_line(linewidth = 1.5, alpha = 0.9) +
   scale_y_log10() +
-  geom_hline(yintercept = 10, linetype = "dashed", color = "gray40") +
+  geom_hline(
+    yintercept = 10,
+    linetype = "dashed",
+    color = "gray40"
+  ) +
   geom_vline(
     xintercept = log(best_lambda_dap_ab),
     linetype = "dashed",
+    linewidth = 1,
     color = "red"
   ) +
   labs(
-    title = "VIF em função de k",
-    subtitle = "",
+    title = "VIF Trace Plot",
+    subtitle = "Modelo Ridge (Sem DAP e Área Basal)",
     x = expression(log(k)),
-    y = "VIF Ridge (escala log)"
+    y = "VIF Ridge"
   ) +
   theme_minimal(base_size = 14) +
   theme(
+    plot.title = element_text(face = "bold", size = 16),
+    plot.subtitle = element_text(size = 13, color = "gray40"),
     legend.position = "right",
-    legend.title = element_blank()
+    legend.title = element_blank(),
+    panel.grid.minor = element_blank()
+  )
+
+
+
+
+```
+
+
+
+
+
+
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+
+
+
+```{r tabela_comparacao_ridge, message=FALSE, warning=FALSE}
+
+
+library(dplyr)
+library(knitr)
+library(kableExtra)
+
+tabela_ridge <- tibble(
+  Modelo = c(
+    "Ridge Completo",
+    "Ridge sem Área Basal",
+    "Ridge sem DAP",
+    "Ridge sem DAP e Área Basal"
+  ),
+  Lambda_Otimo = c(
+    best_lambda_ridge,
+    best_lambda_ridge2,
+    best_lambda_dap,
+    best_lambda_dap_ab
+  ),
+  R2 = c(
+    R2_ridge,
+    R2_ridge2,
+    R2_dap,
+    R2_dap_ab
+  ),
+  RMSE = c(
+    rmse_ridge,
+    rmse_ridge2,
+    rmse_dap,
+    rmse_dap_ab
+  ),
+  MAE = c(
+    mae_ridge,
+    mae_ridge2,
+    mae_dap,
+    mae_dap_ab
+  ),
+  MAPE = c(
+    mape_ridge,
+    mape_ridge2,
+    mape_dap,
+    mape_dap_ab
+  ),
+  AIC = c(
+    AIC_ridge,
+    AIC_ridge2,
+    AIC_dap,
+    AIC_dap_ab
+  ),
+  BIC = c(
+    BIC_ridge,
+    BIC_ridge2,
+    BIC_dap,
+    BIC_dap_ab
+  )
+) %>%
+  mutate(
+    Lambda_Otimo = round(Lambda_Otimo, 5),
+    R2 = round(R2, 4),
+    RMSE = round(RMSE, 3),
+    MAE = round(MAE, 3),
+    MAPE = round(MAPE, 2),
+    AIC = round(AIC, 2),
+    BIC = round(BIC, 2)
+  )
+
+kable(
+  tabela_ridge,
+  caption = "Comparação dos modelos Ridge segundo desempenho preditivo e critérios de informação",
+  align = "c"
+) %>%
+  kable_styling(
+    full_width = FALSE,
+    position = "center",
+    bootstrap_options = c("striped", "hover", "condensed")
   )
 
 ```
-
-
-
-
-
-
-::: progress
-::: {.progress-bar style="width: 100%;"}
-:::
-:::
-
-
-## Modelo Elastic Net (Geral)
-
-```{r modeloelasticnet1, message=FALSE, warning=FALSE}
-
-library(caret)
-library(glmnet)
-
-dados_elastic_net <- dados %>% select(-AREA_BASAL)
-
-dados_en <- na.omit(dados_elastic_net) 
-set.seed(123)
-train_index_en <- createDataPartition(dados_en$VOLUME, p = 0.9, list = FALSE)
-dados_treino_en <- dados_en[train_index_en, ]
-dados_teste_en <- dados_en[-train_index_en, ]
-
-
-# 3. Configurar o Controle de Treinamento (Validação Cruzada)
-# Usaremos validação cruzada de 10 folds para encontrar os melhores parâmetros
-train_control <- trainControl(method = "cv", number = 10)
-
-
-# 4. Definir a Grade de Parâmetros para Testar
-# O caret irá testar diferentes valores de 'alpha' e 'lambda'
-# Vamos testar 11 valores de alpha, de 0 (Ridge) a 1 (Lasso)
-# Para cada alpha, o caret testará automaticamente vários lambdas.
-tune_grid <- expand.grid(
-  alpha = seq(0, 1, length = 11),
-  lambda = seq(0.001, 0.2, length = 20) # Um grid de lambdas para testar
-)
-
-# 5. Treinar o Modelo Elastic Net
-# O caret vai fazer todo o trabalho de testar as combinações da grade
-# e encontrar a melhor. Isso pode levar um minuto.
-cat("Iniciando a otimização do Elastic Net...\n")
-set.seed(123)
-modelo_en <- train(
-  VOLUME ~ .,
-  data = dados_treino_en,
-  method = "glmnet",         # Especifica o uso de Ridge, Lasso, Elastic Net
-  trControl = train_control, # Aplica a validação cruzada
-  tuneGrid = tune_grid,      # Fornece a grade de parâmetros para testar
-  preProcess = c("center", "scale") # Boa prática: centralizar e escalar os dados
-)
-
-# 6. Ver os Melhores Parâmetros Encontrados
-cat("\n--- Melhor Combinação Encontrada pelo Caret ---\n")
-print(modelo_en$bestTune)
-
-
-# 7. Avaliar o Modelo Final no Conjunto de Teste
-y_pred_en <- predict(modelo_en, newdata = dados_teste_en)
-R2_en <- cor(dados_teste_en$VOLUME, y_pred_en)^2
-rmse_en <- sqrt(mean((dados_teste_en$VOLUME - y_pred_en)^2))
-mae_en <- mean(abs(dados_teste_en$VOLUME - y_pred_en))
-mape_en <- mean(abs((dados_teste_en$VOLUME - y_pred_en) / dados_teste_en$VOLUME)) * 100
-
-# 8. Apresentar os Resultados Finais
-cat("\n--- Performance do Modelo Elastic Net Otimizado ---\n")
-cat("Melhor alpha:", modelo_en$bestTune$alpha, "\n")
-cat("Melhor lambda:", modelo_en$bestTune$lambda, "\n")
-cat("----------------------------------------\n")
-cat("R² =", R2_en, "\n")
-cat("RMSE =", rmse_en, "\n")
-cat("MAE =", mae_en, "\n")
-cat("MAPE =", mape_en, "%\n")
-
-```
-
-
-
-
-::: progress
-::: {.progress-bar style="width: 100%;"}
-:::
-:::
 
 
 

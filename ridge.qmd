@@ -42,6 +42,13 @@ Quando os dados possuem traços de multicolinearidade sempre existe um valor par
 A função estimada pela Regressão em Crista produz predições com novas observações que tendem a serem mais precisas do que as feitas pela função estimada pelo método de mínimos quadrados ordinários, quando as variáveis independentes são correlacionadas e a nova observação segue o mesmo padrão de multicolinearidade, esta precisão na predição de novas observações é favorecida pela Regressão de Cume, especialmente quando a multicolinearidade é forte (NETER; WASSERMAN, 1974), (DRAPER; SMITH, 1981), (ELIAN, 1998). 
 
 
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+
+
 ## Métodos pra Determinar $k$
 
 Um valor ideal para o parâmetro $K$, o qual resulta em um menor QME que o obtido pelo Método de Mínimos Quadrados Ordinários (MQO) depende do vetor de parâmetro  desconhecido e da variância do erro também desconhecido (HOERL; KENNARD, 1970a). Conseqüentemente, K precisa ser determinado empiricamente ou obtido dos dados, e não é possível determinar o valor ideal do parâmetro de cume K. Muitos métodos têm sido propostos para obter os valores apropriados, mas não existe um consenso de qual método é o mais adequado. Assim, o parâmetro de ridge $K$ será estimado a partir de dois métodos: Gráfico do Traço de Cume (**Ridge Trace Plot**) e Gráfico do Fator de Inflação da Variância (**Variance Inflation Factor Plot**). 
@@ -308,6 +315,91 @@ ggplot(df_long, aes(x = lambda, y = Coeficiente, color = Variavel)) +
   )
 ```
 
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+
+### VIF Trace Plot (Geral)
+
+
+```{r}
+
+library(ggplot2)
+library(reshape2)
+
+# ---------------- MATRIZ DE PREDITORES ---------------- #
+X <- scale(x_train)
+
+# ---------------- SEQUÊNCIA DE k ---------------- #
+k_values <- exp(seq(
+  log(1e-4),
+  log(10),
+  length.out = 100
+))
+
+# ---------------- FUNÇÃO VIF RIDGE ---------------- #
+ridge_vif <- function(X, k) {
+  XtX <- crossprod(X)
+  A <- solve(XtX + diag(k, ncol(X)))
+  diag(A %*% XtX %*% A)
+}
+
+# ---------------- CÁLCULO DOS VIFS ---------------- #
+vif_matrix <- sapply(k_values, function(k) ridge_vif(X, k))
+
+# ---------------- ORGANIZAÇÃO DOS DADOS ---------------- #
+vif_df <- as.data.frame(t(vif_matrix))
+colnames(vif_df) <- colnames(X)
+vif_df$k <- k_values
+
+vif_long <- melt(
+  vif_df,
+  id.vars = "k",
+  variable.name = "Variavel",
+  value.name = "VIF"
+)
+
+# Remove problemas numéricos
+vif_long <- vif_long[
+  is.finite(vif_long$VIF) & vif_long$VIF > 0,
+]
+
+# ---------------- GRÁFICO FINAL (NORMAL) ---------------- #
+ggplot(vif_long,
+       aes(x = log(k),
+           y = VIF,
+           color = Variavel)) +
+  geom_line(linewidth = 1.2, alpha = 0.9) +
+  geom_hline(yintercept = 10,
+             linetype = "dashed",
+             color = "gray40") +
+  geom_vline(xintercept = log(best_lambda_ridge),
+             linetype = "dashed",
+             color = "red") +
+  scale_y_log10() +
+  labs(
+    title = "VIF Trace Plot",
+    subtitle = "Modelo Ridge Completo",
+    x = expression(log(k)),
+    y = "VIF",
+    color = "Variáveis"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "right",
+    plot.title = element_text(face = "bold", size = 16),
+    plot.subtitle = element_text(size = 12, color = "gray40")
+  )
+
+```
+
+
+
+
+
+
 
 ::: progress
 ::: {.progress-bar style="width: 100%;"}
@@ -515,8 +607,14 @@ cat("R² =", R2_dap,
     "\nMAE =", mae_dap,
     "\nMAPE =", mape_dap
     )
-
 ```
+
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
 
 
 ### Ridge Trace Plot (Sem DAP)
@@ -581,6 +679,11 @@ ggplot(df_long_dap, aes(x = lambda, y = Coeficiente, color = Variavel)) +
 ```
 
 
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
 
 ## Modelo de Regressão Ridge (Sem DAP + Area Basal)
 
@@ -627,7 +730,8 @@ y_pred_dap_ab <- predict(modelo_ridge_dap_ab, s = best_lambda_dap_ab, newx = x_t
 R2_dap_ab <- cor(y_test_dap_ab, y_pred_dap_ab)^2
 rmse_dap_ab <- sqrt(mean((y_test_dap_ab - y_pred_dap_ab)^2))
 mae_dap_ab <- mean(abs(y_test_dap_ab - y_pred_dap_ab))
-mape_dap_ab <- mean(abs((y_test_dap_ab - y_pred_dap_ab) / y_test2)) * 100
+mape_dap_ab <- mean(abs((y_test_dap_ab - y_pred_dap_ab) / y_test_dap_ab)) * 100
+
 
 
 cat("\nModelo Ridge SEM DAP e SEM Área Basal:\n")
@@ -638,6 +742,12 @@ cat("R²:", R2_dap_ab,
     )
 
 ```
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
 
 
 
@@ -703,8 +813,100 @@ ggplot(df_long_dap_ab, aes(x = lambda, y = Coeficiente, color = Variavel)) +
   )
 ```
 
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
 
 
+
+### VIF Trace Plot (Sem DAP + Area Basal)
+
+
+
+
+```{r}
+
+library(ggplot2)
+library(reshape2)
+
+# Matriz de preditores padronizada
+X <- scale(x_train_dap_ab)
+p <- ncol(X)
+
+# Sequência LOGARÍTMICA de k (robusta)
+k_values <- exp(seq(
+  log(1e-4),   # k mínimo
+  log(10),     # k máximo
+  length.out = 100
+))
+
+# Função VIF Ridge estável
+ridge_vif <- function(X, k) {
+  XtX <- crossprod(X)
+  A <- solve(XtX + diag(k, ncol(X)))
+  vif <- diag(A %*% XtX %*% A)
+  return(vif)
+}
+
+# Calcular VIFs
+vif_matrix <- sapply(k_values, function(k) ridge_vif(X, k))
+
+# Organizar dados
+vif_df <- as.data.frame(t(vif_matrix))
+colnames(vif_df) <- colnames(X)
+vif_df$k <- k_values
+
+vif_long <- melt(
+  vif_df,
+  id.vars = "k",
+  variable.name = "Variavel",
+  value.name = "VIF"
+)
+
+# Remover lixo numérico
+vif_long <- vif_long[
+  is.finite(vif_long$VIF) & vif_long$VIF > 0,
+]
+
+# GRÁFICO FINAL (AGORA APARECE)
+ggplot(vif_long, aes(
+  x = log(k),
+  y = VIF,
+  color = Variavel,
+  group = Variavel
+)) +
+  geom_line(linewidth = 2, alpha = 0.9) +
+  scale_y_log10() +
+  geom_hline(yintercept = 10, linetype = "dashed", color = "gray40") +
+  geom_vline(
+    xintercept = log(best_lambda_dap_ab),
+    linetype = "dashed",
+    color = "red"
+  ) +
+  labs(
+    title = "VIF em função de k",
+    subtitle = "",
+    x = expression(log(k)),
+    y = "VIF Ridge (escala log)"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "right",
+    legend.title = element_blank()
+  )
+
+```
+
+
+
+
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
 
 
 ## Modelo Elastic Net (Geral)
@@ -774,6 +976,28 @@ cat("MAE =", mae_en, "\n")
 cat("MAPE =", mape_en, "%\n")
 
 ```
+
+
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

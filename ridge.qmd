@@ -1201,155 +1201,11 @@ ggplot(
 ```
 
 
-
-
-
-
-
-
 ::: progress
 ::: {.progress-bar style="width: 100%;"}
 :::
 :::
 
-
-### Comparação dos Modelos
-
-
-```{r tabela_comparacao_ridge, message=FALSE, warning=FALSE}
-
-
-library(dplyr)
-library(knitr)
-library(kableExtra)
-
-tabela_ridge <- tibble(
-  Modelo = c(
-    "Ridge Completo",
-    "Ridge sem Área Basal",
-    "Ridge sem DAP",
-    "Ridge sem DAP e Área Basal"
-  ),
-  Lambda_Otimo = c(
-    best_lambda_ridge,
-    best_lambda_ridge2,
-    best_lambda_dap,
-    best_lambda_dap_ab
-  ),
-  R2 = c(
-    R2_ridge,
-    R2_ridge2,
-    R2_dap,
-    R2_dap_ab
-  ),
-  RMSE = c(
-    rmse_ridge,
-    rmse_ridge2,
-    rmse_dap,
-    rmse_dap_ab
-  ),
-  MAE = c(
-    mae_ridge,
-    mae_ridge2,
-    mae_dap,
-    mae_dap_ab
-  ),
-  MAPE = c(
-    mape_ridge,
-    mape_ridge2,
-    mape_dap,
-    mape_dap_ab
-  ),
-  AIC = c(
-    AIC_ridge,
-    AIC_ridge2,
-    AIC_dap,
-    AIC_dap_ab
-  ),
-  BIC = c(
-    BIC_ridge,
-    BIC_ridge2,
-    BIC_dap,
-    BIC_dap_ab
-  )
-) %>%
-  mutate(
-    Lambda_Otimo = round(Lambda_Otimo, 5),
-    R2 = round(R2, 4),
-    RMSE = round(RMSE, 3),
-    MAE = round(MAE, 3),
-    MAPE = round(MAPE, 2),
-    AIC = round(AIC, 2),
-    BIC = round(BIC, 2)
-  )
-
-kable(
-  tabela_ridge,
-  caption = "Comparação dos modelos Ridge",
-  align = "c"
-) %>%
-  kable_styling(
-    full_width = FALSE,
-    position = "center",
-    bootstrap_options = c("striped", "hover", "condensed")
-  )
-
-```
-
-
-
-
-::: progress
-::: {.progress-bar style="width: 100%;"}
-:::
-:::
-
-
-
-```{r}
-
-library(ggplot2)
-library(ggrepel)
-
-df_comp <- data.frame(
-  Modelo = c(
-    "Geral",
-    "Sem Área Basal",
-    "Sem DAP",
-    "Sem DAP/Área Basal"
-  ),
-  RMSE = c(
-    rmse_ridge,
-    rmse_ridge2,
-    rmse_dap,
-    rmse_dap_ab
-  ),
-  AIC = c(
-    AIC_ridge,
-    AIC_ridge2,
-    AIC_dap,
-    AIC_dap_ab
-  )
-)
-
-ggplot(df_comp, aes(x = AIC, y = RMSE, label = Modelo)) +
-  geom_point(size = 4, color = "firebrick") +
-  geom_text_repel(size = 4, box.padding = 0.4) +
-  labs(
-    title = "Comparação dos Modelos Ridge",
-    subtitle = "",
-    x = "AIC",
-    y = "RMSE"
-  ) +
-  theme_minimal(base_size = 14)
-
-```
-
-
-::: progress
-::: {.progress-bar style="width: 100%;"}
-:::
-:::
 
 
 
@@ -1477,7 +1333,103 @@ cat("Alpha ótimo:", best_alpha_enet,
 
 
 
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
 
+
+
+### Comparação dos Modelos
+
+
+```{r tabela_comparacao_ridge, message=FALSE, warning=FALSE}
+
+
+library(dplyr)
+library(knitr)
+library(kableExtra)
+
+tabela_ridge <- tibble(
+  Modelo = c(
+    "Ridge Completo",
+    "Ridge sem Área Basal",
+    "Ridge sem DAP",
+    "Ridge sem DAP e Área Basal",
+    "Elastic Net"
+  ),
+  Lambda_Otimo = c(
+    best_lambda_ridge,
+    best_lambda_ridge2,
+    best_lambda_dap,
+    best_lambda_dap_ab,
+    best_lambda_enet
+  ),
+  R2 = c(
+    R2_ridge,
+    R2_ridge2,
+    R2_dap,
+    R2_dap_ab,
+    R2_enet
+  ),
+  RMSE = c(
+    rmse_ridge,
+    rmse_ridge2,
+    rmse_dap,
+    rmse_dap_ab,
+     rmse_enet
+  ),
+  MAE = c(
+    mae_ridge,
+    mae_ridge2,
+    mae_dap,
+    mae_dap_ab,
+    mae_enet
+  ),
+  MAPE = c(
+    mape_ridge,
+    mape_ridge2,
+    mape_dap,
+    mape_dap_ab,
+    mape_enet
+  ),
+  AIC = c(
+    AIC_ridge,
+    AIC_ridge2,
+    AIC_dap,
+    AIC_dap_ab,
+    AIC_enet
+  ),
+  BIC = c(
+    BIC_ridge,
+    BIC_ridge2,
+    BIC_dap,
+    BIC_dap_ab,
+    BIC_enet
+  )
+) %>%
+  mutate(
+    Lambda_Otimo = round(Lambda_Otimo, 5),
+    R2 = round(R2, 4),
+    RMSE = round(RMSE, 3),
+    MAE = round(MAE, 3),
+    MAPE = round(MAPE, 2),
+    AIC = round(AIC, 2),
+    BIC = round(BIC, 2)
+  )
+
+kable(
+  tabela_ridge,
+  caption = "Comparação dos modelos Ridge",
+  align = "c"
+) %>%
+  kable_styling(
+    full_width = FALSE,
+    position = "center",
+    bootstrap_options = c("striped", "hover", "condensed")
+  )
+
+```
 
 
 
@@ -1488,12 +1440,46 @@ cat("Alpha ótimo:", best_alpha_enet,
 
 
 
+```{r}
 
+library(ggplot2)
+library(ggrepel)
 
+df_comp <- data.frame(
+  Modelo = c(
+    "Geral",
+    "Sem Área Basal",
+    "Sem DAP",
+    "Sem DAP/Área Basal",
+    "Elastic Net"
+  ),
+  RMSE = c(
+    rmse_ridge,
+    rmse_ridge2,
+    rmse_dap,
+    rmse_dap_ab,
+    rmse_enet
+  ),
+  AIC = c(
+    AIC_ridge,
+    AIC_ridge2,
+    AIC_dap,
+    AIC_dap_ab,
+    AIC_enet
+  )
+)
 
+ggplot(df_comp, aes(x = AIC, y = RMSE, label = Modelo)) +
+  geom_point(size = 4, color = "firebrick") +
+  geom_text_repel(size = 4, box.padding = 0.4) +
+  labs(
+    title = "",
+    subtitle = "",
+    x = "AIC",
+    y = "RMSE"
+  ) +
+  theme_minimal(base_size = 14)
 
-
-
-
+```
 
 

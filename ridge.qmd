@@ -1213,6 +1213,7 @@ ggplot(
 :::
 
 
+### Comparação dos Modelos
 
 
 ```{r tabela_comparacao_ridge, message=FALSE, warning=FALSE}
@@ -1284,7 +1285,7 @@ tabela_ridge <- tibble(
 
 kable(
   tabela_ridge,
-  caption = "Comparação dos modelos Ridge segundo desempenho preditivo e critérios de informação",
+  caption = "Comparação dos modelos Ridge",
   align = "c"
 ) %>%
   kable_styling(
@@ -1298,7 +1299,192 @@ kable(
 
 
 
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
 
+
+
+```{r}
+
+library(ggplot2)
+library(ggrepel)
+
+df_comp <- data.frame(
+  Modelo = c(
+    "Geral",
+    "Sem Área Basal",
+    "Sem DAP",
+    "Sem DAP/Área Basal"
+  ),
+  RMSE = c(
+    rmse_ridge,
+    rmse_ridge2,
+    rmse_dap,
+    rmse_dap_ab
+  ),
+  AIC = c(
+    AIC_ridge,
+    AIC_ridge2,
+    AIC_dap,
+    AIC_dap_ab
+  )
+)
+
+ggplot(df_comp, aes(x = AIC, y = RMSE, label = Modelo)) +
+  geom_point(size = 4, color = "firebrick") +
+  geom_text_repel(size = 4, box.padding = 0.4) +
+  labs(
+    title = "Comparação dos Modelos Ridge",
+    subtitle = "",
+    x = "AIC",
+    y = "RMSE"
+  ) +
+  theme_minimal(base_size = 14)
+
+```
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+
+
+
+### Modelo Elastic Net (Geral)
+
+```{r}
+
+## =========================================================
+## Elastic Net – Modelo Geral (Ridge + LASSO)
+## =========================================================
+
+library(caret)
+library(glmnet)
+library(dplyr)
+library(ggplot2)
+
+
+set.seed(123)
+
+#--------------------------------------------
+# Dados de treino e teste (mesmo padrão)
+#--------------------------------------------
+train_index_enet <- createDataPartition(dados$VOLUME, p = 0.9, list = FALSE)
+dados_treino_enet <- dados[train_index_enet, ]
+dados_teste_enet  <- dados[-train_index_enet, ]
+
+x_train_enet <- model.matrix(VOLUME ~ ., dados_treino_enet)[, -1]
+y_train_enet <- dados_treino_enet$VOLUME
+
+x_test_enet <- model.matrix(VOLUME ~ ., dados_teste_enet)[, -1]
+y_test_enet <- dados_teste_enet$VOLUME
+
+
+#--------------------------------------------
+# Grid PODEROSO de alpha e lambda
+#--------------------------------------------
+alpha_grid <- seq(0.1, 0.9, by = 0.1)
+
+
+set.seed(123)
+
+cv_results <- lapply(alpha_grid, function(a) {
+  
+  cv <- cv.glmnet(
+    x_train_enet,
+    y_train_enet,
+    alpha = a,
+    standardize = TRUE,
+    nfolds = 10
+  )
+  
+  data.frame(
+    alpha = a,
+    lambda = cv$lambda.min,
+    cvm = min(cv$cvm)
+  )
+})
+
+cv_df <- do.call(rbind, cv_results)
+
+
+
+best_row <- cv_df[which.min(cv_df$cvm), ]
+
+best_alpha_enet  <- best_row$alpha
+best_lambda_enet <- best_row$lambda
+
+cat("Alpha ótimo:", best_alpha_enet, "\n")
+cat("Lambda ótimo:", best_lambda_enet, "\n")
+
+
+modelo_enet <- glmnet(
+  x_train_enet,
+  y_train_enet,
+  alpha = best_alpha_enet,
+  lambda = best_lambda_enet,
+  standardize = TRUE
+)
+
+y_pred_enet <- predict(modelo_enet, newx = x_test_enet)
+
+R2_enet   <- cor(y_test_enet, y_pred_enet)^2
+rmse_enet <- sqrt(mean((y_test_enet - y_pred_enet)^2))
+mae_enet  <- mean(abs(y_test_enet - y_pred_enet))
+mape_enet <- mean(abs((y_test_enet - y_pred_enet) / y_test_enet)) * 100
+
+coef_enet <- coef(modelo_enet)
+
+variaveis_enet <- rownames(coef_enet)[
+  coef_enet[, 1] != 0 & rownames(coef_enet) != "(Intercept)"
+]
+
+n <- length(y_train_enet)
+
+y_fitted_enet <- predict(modelo_enet, newx = x_train_enet)
+
+rss_enet <- sum((y_train_enet - y_fitted_enet)^2)
+sigma2_enet <- rss_enet / n
+
+logLik_enet <- -n/2 * (log(2 * pi) + log(sigma2_enet) + 1)
+
+df_enet <- modelo_enet$df
+
+AIC_enet <- -2 * logLik_enet + 2 * df_enet
+BIC_enet <- -2 * logLik_enet + log(n) * df_enet
+
+cat("\n==============================\n")
+cat("ELASTIC NET — MODELO FINAL\n")
+cat("==============================\n")
+cat("Alpha ótimo:", best_alpha_enet,
+    "\nLambda ótimo:", best_lambda_enet,
+    "\nR²:", R2_enet,
+    "\nRMSE:", rmse_enet,
+    "\nMAE:", mae_enet,
+    "\nMAPE:", mape_enet,
+    "\nAIC:", AIC_enet,
+    "\nBIC:", BIC_enet,
+    "\n\nVariáveis selecionadas:\n",
+    paste(variaveis_enet, collapse = ", "),
+    "\n")
+
+
+```
+
+
+
+
+
+
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
 
 
 

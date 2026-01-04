@@ -14,14 +14,14 @@
   
   
 
-# Modelo de Regressão LASSO
+# Regressão LASSO
 
 A regressçao ridge mantém todas as variáveis no modelo final, memso quando $k$ é grande. Isso pode ser um problema na interpretação do modelo, por conta da quantidade de variáveis e pelos baixos coeficientes. O lasso pe uma alternativa à regressão ridge que permite obter um modelo final com um subconjunto de variáveis.
 
 Para rodar a regressão Lasso na linguagem R, usaremos o **pacote glmnet**.
 
 
-```{r base2, message=FALSE, warning=FALSE}
+```{r base3, message=FALSE, warning=FALSE}
 library(readxl)
 
 dados <- read_excel("dados_pinus.xlsx")
@@ -51,8 +51,10 @@ Para ilustrar a regressão ridge, vamos começar com um exemplo em que queremos 
 
 ## Modelo Regressão LASSO Geral
 
-
 ```{r modelolasso1, message=FALSE, warning=FALSE}
+
+## Modelo Regressão LASSO Geral
+
 library(caret)
 library(glmnet)
 
@@ -67,45 +69,68 @@ y_train_lasso <- dados_treino_lasso$VOLUME
 x_test_lasso <- model.matrix(VOLUME ~ ., dados_teste_lasso)[, -1]
 y_test_lasso <- dados_teste_lasso$VOLUME
 
-# Validação cruzada para Lasso (alpha = 1)
-cv_lasso <- cv.glmnet(x_train_lasso, y_train_lasso, alpha = 1, standardize = TRUE)
+# Validação cruzada LASSO
+cv_lasso <- cv.glmnet(
+  x_train_lasso,
+  y_train_lasso,
+  alpha = 1,
+  standardize = TRUE
+)
+
 best_lambda_lasso <- cv_lasso$lambda.min
-modelo_lasso <- glmnet(x_train_lasso, y_train_lasso, alpha = 1, lambda = best_lambda_lasso, standardize = TRUE)
 
-# Predição no teste
-y_pred_lasso <- predict(modelo_lasso, s = best_lambda_lasso, newx = x_test_lasso)
+modelo_lasso <- glmnet(
+  x_train_lasso,
+  y_train_lasso,
+  alpha = 1,
+  lambda = best_lambda_lasso,
+  standardize = TRUE
+)
 
+# Predição
+y_pred_lasso <- predict(modelo_lasso, newx = x_test_lasso)
+
+# Métricas
 R2_lasso <- cor(y_test_lasso, y_pred_lasso)^2
 rmse_lasso <- sqrt(mean((y_test_lasso - y_pred_lasso)^2))
 mae_lasso <- mean(abs(y_test_lasso - y_pred_lasso))
 mape_lasso <- mean(abs((y_test_lasso - y_pred_lasso) / y_test_lasso)) * 100
 
-# Variáveis selecionadas (diferentes de zero)
+# Variáveis selecionadas
 coef_lasso <- coef(modelo_lasso)
-variaveis_lasso <- rownames(coef_lasso)[coef_lasso[, 1] != 0 & rownames(coef_lasso) != "(Intercept)"]
+variaveis_lasso <- rownames(coef_lasso)[
+  coef_lasso[, 1] != 0 & rownames(coef_lasso) != "(Intercept)"
+]
 
-# ----- AIC e BIC -----
+# ---------------- AIC e BIC ---------------- #
+y_fitted_lasso <- predict(modelo_lasso, newx = x_train_lasso)
+RSS_lasso <- sum((y_train_lasso - y_fitted_lasso)^2)
+
+df_lasso <- modelo_lasso$df[modelo_lasso$lambda == best_lambda_lasso]
 n <- length(y_train_lasso)
-y_fitted_lasso <- predict(modelo_lasso, s = best_lambda_lasso, newx = x_train_lasso)
-rss_lasso <- sum((y_train_lasso - y_fitted_lasso)^2)
-sigma2_lasso <- rss_lasso / n
-logLik_lasso <- -n / 2 * (log(2 * pi) + log(sigma2_lasso) + 1)
 
-df_lasso <- modelo_lasso$df  # graus de liberdade = número de coeficientes ≠ 0
-aic_lasso <- -2 * logLik_lasso + 2 * df_lasso
-bic_lasso <- -2 * logLik_lasso + log(n) * df_lasso
+AIC_lasso <- n * log(RSS_lasso / n) + 2 * (df_lasso + 1)
+BIC_lasso <- n * log(RSS_lasso / n) + log(n) * (df_lasso + 1)
 
 # Resultados
-cat("Lasso COM todas as variáveis:\n")
-cat("R²:", R2_lasso, 
-    "\nRMSE:", rmse_lasso, 
-    "\nMAE:", mae_lasso,
-    "\nMAPE =", mape_lasso,
-    "\nAIC =", aic_lasso,
-    "\nBIC =", bic_lasso
+cat("\n--- Modelo LASSO  ---\n")
+cat(
+  "R² =", R2_lasso,
+  "\nRMSE =", rmse_lasso,
+  "\nMAE =", mae_lasso,
+  "\nMAPE =", mape_lasso,
+  "\nAIC =", AIC_lasso,
+  "\nBIC =", BIC_lasso
 )
-cat("\nVariáveis selecionadas:", paste(variaveis_lasso, collapse = ", "), "\n")
-#------------------------------------------------------------------------------#
+
+
+
+cat(
+  "\nVariáveis selecionadas:",
+  paste(variaveis_lasso, collapse = ", "),
+  "\n"
+)
+
 ```
 
 
@@ -114,67 +139,76 @@ cat("\nVariáveis selecionadas:", paste(variaveis_lasso, collapse = ", "), "\n")
 ::: {.progress-bar style="width: 100%;"}
 :::
 :::
-
+  
 
 ## Lasso Trace Plot
 
 ```{r lasso2, message=FALSE, warning=FALSE}
 
+
+library(dplyr)
 library(tidyr)
-library(caret)
+library(ggplot2)
 library(glmnet)
 
 
-# Ajustar Lasso com sequência de lambdas
-lasso_seq <- glmnet(x_train_lasso, y_train_lasso, alpha = 1, standardize = TRUE)
+lasso_seq <- glmnet(x_train_lasso, 
+                    y_train_lasso, 
+                    alpha = 1, 
+                    standardize = TRUE)
 
-# Obter coeficientes e log(lambda)
-coefs_lasso_matrix <- as.matrix(lasso_seq$beta)
-lambdas_lasso <- lasso_seq$lambda
-log_lambda_lasso <- log(lambdas_lasso)
+# Índice do lambda ótimo
+id_best <- which.min(abs(lasso_seq$lambda - best_lambda_lasso))
 
-# Transpor e criar data frame com log(lambda)
-df_coefs_lasso <- as.data.frame(t(coefs_lasso_matrix))
-df_coefs_lasso$log_lambda <- log_lambda_lasso
+# Coeficientes no lambda ótimo
+coef_best <- as.matrix(lasso_seq$beta)[, id_best]
 
-# Transformar para formato longo (tidy)
-df_long_lasso <- df_coefs_lasso %>%
-  pivot_longer(cols = -log_lambda, names_to = "Variavel", values_to = "Coeficiente")
+# Variáveis selecionadas (≠ 0)
+vars_selected <- names(coef_best[coef_best != 0])
 
-# Lasso Plot com ggplot2
-ggplot(df_long_lasso, aes(x = log_lambda, 
-                          y = Coeficiente, 
-                          color = Variavel)) +
-  geom_line(size = 1.2, alpha = 0.9) +               # Linhas suaves e grossas
-  geom_vline(xintercept = log(best_lambda_lasso), 
-             linetype = "dashed", color = "red") +
+# Construir data frame dos coeficientes ao longo do caminho
+df_lasso_path <- as.data.frame(t(as.matrix(lasso_seq$beta)))
+df_lasso_path$log_lambda <- log(lasso_seq$lambda)
+
+# Manter apenas variáveis selecionadas no modelo final
+df_lasso_path <- df_lasso_path %>%
+  select(log_lambda, all_of(vars_selected)) %>%
+  pivot_longer(
+    cols = -log_lambda,
+    names_to = "Variavel",
+    values_to = "Coeficiente"
+  )
+
+# Gráfico LASSO TRACE – MODELO ESCOLHIDO
+ggplot(
+  df_lasso_path,
+  aes(x = log_lambda, y = Coeficiente, color = Variavel)
+) +
+  geom_line(size = 1.3) +
+  geom_vline(
+    xintercept = log(best_lambda_lasso),
+    linetype = "dashed",
+    linewidth = 1,
+    color = "black"
+  ) +
   labs(
-    title = "Lasso Trace Plot",
-    subtitle = "Modelo Lasso Completo",
+    title = "LASSO Trace Plot",
+    subtitle = expression(paste(
+      ""
+    )),
     x = expression(log(lambda)),
     y = "Coeficiente"
   ) +
-  scale_color_brewer(palette = "Dark2") +  # Paleta de cores suave
+  scale_color_brewer(palette = "Dark2") +
   theme_minimal(base_size = 14) +
   theme(
     plot.title = element_text(face = "bold", size = 16),
     plot.subtitle = element_text(size = 13, color = "gray40"),
     legend.title = element_blank(),
-    legend.text = element_text(size = 11),
-    legend.position = "right",
-    panel.grid.minor = element_blank(),
-    panel.grid.major.y = element_line(color = "gray85")
+    panel.grid.minor = element_blank()
   )
+
 ```
-
-
-
-
-
-
-
-
-
 
 
 
@@ -185,3 +219,104 @@ ggplot(df_long_lasso, aes(x = log_lambda,
 ::: {.progress-bar style="width: 100%;"}
 :::
 :::
+
+
+## MODELO MLP (REDE NEURAL)
+
+
+```{r}
+
+
+library(caret)
+library(nnet)
+library(dplyr)
+
+
+set.seed(123)
+
+train_index_nn <- createDataPartition(dados$VOLUME, p = 0.9, list = FALSE)
+
+dados_treino_nn <- dados[train_index_nn, ]
+dados_teste_nn  <- dados[-train_index_nn, ]
+
+preproc <- preProcess(dados_treino_nn[, -which(names(dados) == "VOLUME")],
+                      method = c("center", "scale"))
+
+x_train_nn <- predict(preproc, dados_treino_nn)
+x_test_nn  <- predict(preproc, dados_teste_nn)
+
+
+
+set.seed(123)
+
+ctrl <- trainControl(method = "cv", number = 10)
+
+grid_mlp <- expand.grid(
+  size = c(3, 5, 7),
+  decay = c(0.001, 0.01, 0.1)
+)
+
+modelo_mlp <- train(
+  VOLUME ~ .,
+  data = x_train_nn,
+  method = "nnet",
+  tuneGrid = grid_mlp,
+  trControl = ctrl,
+  linout = TRUE,
+  trace = FALSE,
+  maxit = 500
+)
+
+
+y_pred_mlp <- predict(modelo_mlp, newdata = x_test_nn)
+
+R2_mlp   <- cor(dados_teste_nn$VOLUME, y_pred_mlp)^2
+rmse_mlp <- RMSE(y_pred_mlp, dados_teste_nn$VOLUME)
+mae_mlp  <- MAE(y_pred_mlp, dados_teste_nn$VOLUME)
+
+
+
+cat("\n--- REDE NEURAL (MLP) ---\n")
+cat("R²:", R2_mlp,
+    "\nRMSE:", rmse_mlp,
+    "\nMAE:", mae_mlp,
+    "\nMelhores parâmetros:",
+    "\nNeurônios ocultos:", modelo_mlp$bestTune$size,
+    "\nDecay:", modelo_mlp$bestTune$decay,
+    "\n")
+
+
+```
+
+
+
+::: progress
+::: {.progress-bar style="width: 100%;"}
+:::
+:::
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
